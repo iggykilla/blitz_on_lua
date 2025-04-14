@@ -6,6 +6,7 @@
     getTile(q, r)
     getNeighbors(q, r)
     isTileEmpty(q, r)
+    placeUnit(tiles, q, r, unit, team)
 ]]
 
 local directions = {

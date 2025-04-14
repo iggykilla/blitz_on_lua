@@ -31,7 +31,6 @@ end
 
 function generateHexGrid()
     local tiles = {}
-
     local size = 4 -- this gives us 5-6-7-8-9-8-7-6-5 rows
 
     for q = -size, size do

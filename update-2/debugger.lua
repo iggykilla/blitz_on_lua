@@ -1,6 +1,6 @@
-local debuger = {}
+local debugger = {}
 
-function debuger.log(str)
+function debugger.log(str)
     local file = io.open("debug_log.txt", "a")
     if file then
         file:write(os.date("[%H:%M:%S] ") .. tostring(str) .. "\n")
@@ -8,16 +8,16 @@ function debuger.log(str)
     end
 end
 
-function debuger.logAllTiles(tiles)
-    debuger.log("=== Full Tile State ===")
+function debugger.logAllTiles(tiles)
+    debugger.log("=== Full Tile State ===")
     for _, tile in ipairs(tiles) do
-        debuger.log("Tile at " .. tile.q .. "," .. tile.r)
+        debugger.log("Tile at " .. tile.q .. "," .. tile.r)
         for k, v in pairs(tile) do
-            debuger.log("  " .. k .. ": " .. tostring(v))
+            debugger.log("  " .. k .. ": " .. tostring(v))
         end
-        debuger.log("---")
+        debugger.log("---")
     end
-    debuger.log("=== End of Tile State ===")
+    debugger.log("=== End of Tile State ===")
 end
 
-return debuger
+return debugger

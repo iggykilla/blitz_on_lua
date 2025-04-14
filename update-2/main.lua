@@ -80,6 +80,7 @@ function love.draw()
         if tile.unit then
             local label = tile.unit:sub(1,1):upper()  -- I, T, G, C (infantry, tank, general, cavalry)
             if tile.unit == "horse" then label = "C" end
+            if tile.unit == "commander" then label = "K" end
         
             if tile.team == "red" then
                 love.graphics.setColor(1, 0, 0)

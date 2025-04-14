@@ -40,5 +40,5 @@ WINDOW_HEIGHT = 720
 VIRTUAL_WIDTH = 550
 VIRTUAL_HEIGHT = 360
 
-HEX_RADIUS = 20
+HEX_RADIUS = 20 -- chamged from 40 to 20 to better fit the screen
 

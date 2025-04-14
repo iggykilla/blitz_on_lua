@@ -90,13 +90,11 @@ function isTileEmpty(q, r)
     return tile and tile.unit == nil
 end
 
-function placeUnit(tiles, q, r, unit, team)
-    for _, tile in ipairs(tiles) do
-        if tile.q == q and tile.r == r then
-            tile.unit = unit
-            tile.team = team
-            tile.occupied = true
-            return
-        end
+function placeUnit(q, r, unit, team)
+    local tile = getTile(q, r)
+    if tile then
+        tile.unit = unit
+        tile.team = team
+        tile.occupied = true
     end
 end

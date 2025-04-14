@@ -27,32 +27,32 @@ function love.load()
     -- safe setup of test unit
 
     -- blue back row
-    placeUnit(tiles, 4, -2, "horse", "blue")
-    placeUnit(tiles, 4, -1, "tank",  "blue")
-    placeUnit(tiles,  4, 0, "general", "blue")
-    placeUnit(tiles,  3, 0, "commander", "blue")
-    placeUnit(tiles,  3, 1, "tank",  "blue")
-    placeUnit(tiles,  2, 2, "horse", "blue")
+    placeUnit(4, -2, "horse", "blue")
+    placeUnit(4, -1, "tank",  "blue")
+    placeUnit(4, 0, "general", "blue")
+    placeUnit(3, 0, "commander", "blue")
+    placeUnit(3, 1, "tank",  "blue")
+    placeUnit(2, 2, "horse", "blue")
 
     -- blue infantry
     local blue_infantry_placement = {{1,3}, {1,2}, {2,1}, {2,0}, {3,-1}, {3,-2}, {4,-3}}
-    for _, place in ipairs(blue_infantry_placement) do
-        placeUnit(tiles, place[1], place[2], "infantry", "blue")
+    for _, pos in ipairs(blue_infantry_placement) do
+        placeUnit(pos[1], pos[2], "infantry", "blue")
     end
     
     -- red back row
-    placeUnit(tiles, -4, 2, "horse", "red")
-    placeUnit(tiles, -4, 1, "tank",  "red")
-    placeUnit(tiles,  -4, 0, "general", "red")
-    placeUnit(tiles,  -3, 0, "commander", "red")
-    placeUnit(tiles,  -3, -1, "tank",  "red")
-    placeUnit(tiles,  -2, -2, "horse", "red")
+    placeUnit(-4, 2, "horse", "red")
+    placeUnit(-4, 1, "tank",  "red")
+    placeUnit(-4, 0, "general", "red")
+    placeUnit(-3, 0, "commander", "red")
+    placeUnit(-3, -1, "tank",  "red")
+    placeUnit(-2, -2, "horse", "red")
 
     -- red infantry
     local red_infantry_placement = {{-1,-3}, {-1,-2}, {-2,-1}, {-2,0}, {-3,1}, {-3,2}, {-4,3}}
-    for _, place in ipairs(red_infantry_placement) do
-        placeUnit(tiles, place[1], place[2], "infantry", "red")
-    end   
+    for _, pos in ipairs(red_infantry_placement) do
+        placeUnit(pos[1], pos[2], "infantry", "red")
+    end
 
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)

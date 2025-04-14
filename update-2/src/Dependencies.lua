@@ -20,5 +20,5 @@ require 'src/constants'
 require 'src/HexBoard'
 
 -- requires logic to print debug files
-debug = require("debuger")
+debug = require("debugger")
 debug.log("Hello again!")

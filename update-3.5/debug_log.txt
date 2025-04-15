@@ -1,0 +1,3 @@
+[23:01:52] Hello again!
+[23:01:52] Game started
+[23:02:56] Moved infantry (blue) from 2,0 to 1,0

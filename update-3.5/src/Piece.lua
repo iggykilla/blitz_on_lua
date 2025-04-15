@@ -33,8 +33,18 @@ function Piece:setPosition(q, r)
 end
 
 function Piece:canMoveTo(q, r)
-    -- Placeholder: allow moving to any tile that's 1 step away
-    local dq = math.abs(self.q - q)
-    local dr = math.abs(self.r - r)
-    return dq <= 1 and dr <= 1
+    local tile = getTile(q, r)
+    if not tile or tile.occupied then
+        return false
+    end
+
+    local neighbors = getNeighbors(self.q, self.r)
+    for _, neighbor in ipairs(neighbors) do
+        if neighbor.q == q and neighbor.r == r then
+            return true
+        end
+    end
+
+    return false
 end
+

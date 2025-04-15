@@ -98,6 +98,27 @@ function love.draw()
         end
     end
 
+    -- DEBUG: Highlight all neighbors of selected tile
+    local selectedTileQ, selectedTileR = 2, 0
+    local from = getTile(selectedTileQ, selectedTileR)
+
+    if from and from.unit then
+        for _, tile in ipairs(getNeighbors(selectedTileQ, selectedTileR)) do
+            if from.unit:canMoveTo(tile.q, tile.r) then
+                love.graphics.setColor(0, 1, 0, 0.4) -- green for valid
+            elseif tile.occupied then
+                love.graphics.setColor(1, 0, 0, 0.4) -- red for occupied
+            else
+                love.graphics.setColor(1, 1, 0, 0.3) -- optional: yellow for invalid
+            end
+
+            love.graphics.circle("fill", tile.x, tile.y, HEX_RADIUS / 3)
+        end
+
+        love.graphics.setColor(1, 1, 1)
+    end
+
+
     love.graphics.setColor(1, 1, 1)
     push:finish()
 end

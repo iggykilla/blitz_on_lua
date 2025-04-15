@@ -106,10 +106,16 @@ function moveUnit(q1, r1, q2, r2)
     if not to or to.occupied then return false end
     if not from.unit:canMoveTo(q2, r2) then return false end
 
+    -- Move unit
     to.unit = from.unit
     to.unit:setPosition(q2, r2)
     to.occupied = true
 
     from.unit = nil
     from.occupied = false
+
+    debug.log(string.format("Moved %s (%s) from %d,%d to %d,%d",
+        to.unit.type, to.unit.team, q1, r1, q2, r2))
+
+    return true
 end

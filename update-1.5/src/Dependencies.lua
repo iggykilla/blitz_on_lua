@@ -15,7 +15,6 @@ Class = require 'lib/class'
 -- a few global constants, centralized
 require 'src/constants'
 
--- utility functions, mainly for splitting our sprite sheet into various Quads
--- of differing sizes for paddles, balls, bricks, etc.
+-- utility functions, to create HexGrid board
 require 'src/HexBoard'
 

@@ -18,8 +18,6 @@ function Piece:init(unitType, team, q, r)
 end
 
 function Piece:getLabel()
-    if self.type == "horse" then return "C" end
-    if self.type == "commander" then return "K" end
     return self.type:sub(1, 1):upper()
 end
 

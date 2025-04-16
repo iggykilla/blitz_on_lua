@@ -9,7 +9,7 @@ function Horse:getLabel()
 end
 
 function Horse:getName()
-    return "Horse"
+    return "Cavalry"
 end
 
 function Horse:getValidMoves()

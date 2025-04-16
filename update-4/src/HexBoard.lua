@@ -7,6 +7,7 @@
     getNeighbors(q, r)
     isTileEmpty(q, r)
     placeUnit(tiles, q, r, unitType, team)
+    moveUnit(q1, r1, q2, r2)
 ]]
 
 local directions = {
@@ -84,6 +85,9 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
 
             local distance = math.max(math.abs(dq), math.abs(dr), math.abs(-dq - dr))
 
+            -- Check both booleans if they pass skips to continue (if exact was set to false skips this line)
+            if exact and distance ~= radius then goto continue end
+
             -- direction filter (optional)
             if allowedDirections then
                 local match = false
@@ -94,10 +98,7 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
                     end
                 end
                 if not match then goto continue end
-            end
-
-            -- Only check distance **after** direction match
-            if exact and distance ~= radius then goto continue end
+            end         
 
             local neighborQ = q + dq
             local neighborR = r + dr

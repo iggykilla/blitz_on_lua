@@ -15,6 +15,6 @@ Class = require 'lib/class'
 -- a few global constants, centralized
 require 'src/constants'
 
--- utility functions, boardl logic
+-- utility functions, board logic
 require 'src/Util'
 

@@ -144,3 +144,54 @@ function moveUnit(q1, r1, q2, r2)
 
     return true
 end
+
+function getReachableTiles(startQ, startR, maxCost, unit)
+    local start = getTile(startQ, startR)
+    if not start then return {} end
+
+    local reachable = {}
+    local queue = {}
+
+    start.costSoFar = 0
+    table.insert(queue, start)
+    reachable[start.q .. "," .. start.r] = start
+
+    while #queue > 0 do
+        local current = table.remove(queue, 1)
+        local neighbors = getNeighbors(current.q, current.r)
+
+        for _, neighbor in ipairs(neighbors) do
+            local cost = current.costSoFar + neighbor.moveCost
+
+            -- Skip if over cost or already visited with lower cost
+            local key = neighbor.q .. "," .. neighbor.r
+            if cost <= maxCost and canMoveThrough(neighbor, unit) 
+            and (not reachable[key] or cost < reachable[key].costSoFar) then
+                neighbor.costSoFar = cost
+                reachable[key] = neighbor
+                table.insert(queue, neighbor)
+            end
+        end
+    end
+
+    -- Return just the tiles as a list
+    local result = {}
+    for _, tile in pairs(reachable) do
+        tile.costSoFar = nil -- clean it up
+        table.insert(result, tile)
+    end
+
+    return result
+end
+
+function canMoveThrough(toTile, unit)
+    if toTile.occupied and toTile.unit.team ~= unit.team then
+        return false
+    end
+
+    if toTile.terrain == "mountain" then
+        return false
+    end
+
+    return true
+end

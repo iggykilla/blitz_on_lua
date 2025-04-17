@@ -13,10 +13,15 @@ function Commander:getName()
 end
 
 function Commander:getValidMoves()
-    return getNeighbors(self.q, self.r, COMMANDER_MOVE_RADIUS)
+    local raw = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self)
+    return self:filterAccessibleTiles(raw)
 end
 
 function Commander:canAttack(q, r)
     -- Placeholder for Update 5
     return false
+end
+
+function Commander:getMaxMoveCost()
+    return 3
 end

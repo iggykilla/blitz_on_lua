@@ -5,9 +5,9 @@ function Visuals.drawTile(tile, smallFont, mediumFont)
 
     -- Highlighted fill first (so outlines draw over)
     if tile.highlighted then
-        love.graphics.setColor(0, 1, 0, 0.3)
+        love.graphics.setColor(0, 1, 0, 0.3) -- green for valid move
         love.graphics.polygon("fill", hexPoints)
-    end
+    end  
 
     -- Optional flash overlay
     if tile.flashTimer > 0 then
@@ -46,19 +46,17 @@ end
 
 
 function Visuals.highlightValidMovesFor(unit)
-    for _, tile in ipairs(unit:getValidMoves()) do
-        if tile.occupied then
-            love.graphics.setColor(1, 0, 0, 0.4) -- red = blocked
-        elseif not tile.occupied then
-            love.graphics.setColor(0, 1, 0, 0.4) -- green = valid
-        else
-            love.graphics.setColor(1, 1, 0, 0.3) -- yellow = fallback (debug)
-        end
-
-        love.graphics.circle("fill", tile.x, tile.y, HEX_RADIUS / 3)
+    -- Clear previous highlights
+    for _, tile in ipairs(tiles) do
+        tile.highlighted = false
     end
 
-    love.graphics.setColor(1, 1, 1)
+    -- Highlight valid moves
+    for _, tile in ipairs(unit:getValidMoves()) do
+        tile.highlighted = true
+    end
 end
 
 return Visuals
+
+

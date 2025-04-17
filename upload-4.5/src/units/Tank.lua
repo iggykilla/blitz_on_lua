@@ -27,10 +27,15 @@ function Tank:getValidMoves()
         table.insert(short, tile)
     end
 
-    return short
+    -- ✅ Filter out friendly-occupied tiles
+    return self:filterAccessibleTiles(short)
 end
 
 function Tank:canAttack(q, r)
     -- Placeholder for Update 5
     return false
+end
+
+function Tank:getMaxMoveCost()
+    return 2
 end

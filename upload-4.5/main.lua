@@ -134,5 +134,16 @@ function love.keypressed(key)
         selectedUnit = placedUnits[unitIndex]
         selectedQ = selectedUnit.q
         selectedR = selectedUnit.r
+
+        -- 🔶 Clear all tile selections
+        for _, tile in ipairs(tiles) do
+            tile.selected = false
+        end
+
+        -- 🔶 Set the selected tile's flag
+        local tile = getTile(selectedUnit.q, selectedUnit.r)
+        if tile then
+            tile.selected = true
+        end
     end
 end

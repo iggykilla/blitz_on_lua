@@ -13,8 +13,10 @@ function General:getName()
 end
 
 function General:getValidMoves()
-    return getNeighbors(self.q, self.r, GENERAL_MOVE_RADIUS, true)
+    local neighbors = getNeighbors(self.q, self.r, 1)
+    return self:filterAccessibleTiles(neighbors)
 end
+
 
 function General:canAttack(q, r)
     -- Placeholder for Update 5

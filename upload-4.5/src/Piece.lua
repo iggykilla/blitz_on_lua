@@ -51,3 +51,21 @@ end
 function Piece:getValidMoves()
     return {} -- Base unit can’t move
 end
+
+function Piece:getMaxMoveCost()
+    return 1 -- default move range (e.g., for Infantry)
+end
+
+function Piece:isTileAccessible(tile)
+    return not tile.occupied or tile.unit.team ~= self.team
+end
+
+function Piece:filterAccessibleTiles(tiles)
+    local result = {}
+    for _, tile in ipairs(tiles) do
+        if self:isTileAccessible(tile) then
+            table.insert(result, tile)
+        end
+    end
+    return result
+end

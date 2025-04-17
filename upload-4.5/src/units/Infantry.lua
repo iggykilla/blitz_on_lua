@@ -18,7 +18,8 @@ function Infantry:getValidMoves()
         and { {0, -1}, {-1, 0}, {-1, 1} }
         or  { {0, 1}, {1, 0}, {1, -1} }
 
-    return getNeighbors(self.q, self.r, radius, true, forwardDirs)
+    local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
+    return self:filterAccessibleTiles(raw)
 end
 
 function Infantry:canAttack(q, r)

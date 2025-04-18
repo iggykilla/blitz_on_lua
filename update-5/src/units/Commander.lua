@@ -13,7 +13,9 @@ function Commander:getName()
 end
 
 function Commander:computeValidMoves()
-
+    local raw = getNeighbors(self.q, self.r, COMMANDER_MOVE_RADIUS)
+    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
+    return self:filterAccessibleTiles(reachableTiles)
 end
 
 function Commander:canAttack(q, r)

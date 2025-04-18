@@ -75,9 +75,16 @@ end
 
 -- Default fallback
 function Piece:computeValidMoves()
-    local neighbors = getNeighbors(self.q, self.r, 1)
-    return self:filterAccessibleTiles(neighbors)
+    -- Get raw neighbors (within radius 1)
+    local raw = getNeighbors(self.q, self.r, 1)
+
+    -- Get reachable tiles considering cost and movement rules
+    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
+
+    -- Filter out tiles that aren't accessible
+    return self:filterAccessibleTiles(reachableTiles)
 end
+
 
 function Piece:getMaxMoveCost()
     return 1 -- default move range (e.g., for Infantry)

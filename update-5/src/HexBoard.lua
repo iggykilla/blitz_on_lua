@@ -151,7 +151,7 @@ function moveUnit(q1, r1, q2, r2)
     return true
 end
 
-function getReachableTiles(startQ, startR, maxCost, unit)
+function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
     local start = getTile(startQ, startR)
     if not start then 
         debug.log("[getReachableTiles] Start tile not found!")
@@ -168,38 +168,34 @@ function getReachableTiles(startQ, startR, maxCost, unit)
     -- Always log the initial conditions
     debug.log(string.format("[getReachableTiles] Start at (%d,%d) with max cost %d", startQ, startR, maxCost))
 
-    while #queue > 0 do
-        local current = table.remove(queue, 1)
-        local neighbors = getNeighbors(current.q, current.r)
+    -- Use the validTiles passed from computeValidMoves
+    local neighbors = validTiles
 
-        debug.log(string.format("[getReachableTiles] Processing tile (%d,%d)", current.q, current.r))
+    -- Process neighbors directly without recalculating them
+    for _, neighbor in ipairs(neighbors) do
+        -- Modify the move cost based on tile-specific rules
+        local modifiedCost = start.costSoFar + unit:modifyMoveCost(neighbor)
 
-        for _, neighbor in ipairs(neighbors) do
-            -- Calculate the total cost to reach this neighbor
-            local cost = current.costSoFar + neighbor.moveCost
-
-            -- Skip neighbors whose total cost exceeds maxCost
-            if cost > maxCost then
-                debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as cost %d exceeds maxCost %d", neighbor.q, neighbor.r, cost, maxCost))
-                goto continue
-            end
-
-            -- Log the cost calculation for each neighbor
-            debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with cost %d", neighbor.q, neighbor.r, cost))
-
-            -- Skip if already visited with lower cost
-            local key = neighbor.q .. "," .. neighbor.r
-            if cost <= maxCost and canMoveThrough(neighbor, unit)
-            and (not reachable[key] or cost < reachable[key].costSoFar) then
-                neighbor.costSoFar = cost
-                reachable[key] = neighbor
-                table.insert(queue, neighbor)
-
-                debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, cost))
-            end
-
-            ::continue::
+        -- Skip neighbors whose total cost exceeds maxCost
+        if modifiedCost > maxCost then
+            debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as modified cost %d exceeds maxCost %d", neighbor.q, neighbor.r, modifiedCost, maxCost))
+            goto continue
         end
+
+        debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with modified cost %d", neighbor.q, neighbor.r, modifiedCost))
+
+        -- Skip if already visited with lower cost
+        local key = neighbor.q .. "," .. neighbor.r
+        if modifiedCost <= maxCost and canMoveThrough(neighbor, unit)
+        and (not reachable[key] or modifiedCost < reachable[key].costSoFar) then
+            neighbor.costSoFar = modifiedCost
+            reachable[key] = neighbor
+            table.insert(queue, neighbor)
+
+            debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, modifiedCost))
+        end
+
+        ::continue::
     end
 
     -- Return just the tiles as a list
@@ -209,7 +205,6 @@ function getReachableTiles(startQ, startR, maxCost, unit)
         table.insert(result, tile)
     end
 
-    -- Final reachable tiles log
     debug.log("[getReachableTiles] Reachable tiles:")
     for _, tile in ipairs(result) do
         debug.log(string.format("  - (%d,%d)", tile.q, tile.r))

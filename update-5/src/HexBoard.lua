@@ -74,16 +74,18 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
     radius = radius or 1
     local results = {}
 
+    --[[if DEBUG_MODE then
+        debug.log(string.format("[getNeighbors] q=%d r=%d radius=%d exact=%s dirs=%s",
+            q, r, radius, tostring(exact), allowedDirections and "yes" or "none"))
+    end]]
+
     for dq = -radius, radius do
         for dr = math.max(-radius, -dq - radius), math.min(radius, -dq + radius) do
             if dq == 0 and dr == 0 then goto continue end
 
             local distance = math.max(math.abs(dq), math.abs(dr), math.abs(-dq - dr))
-
-            -- Check both booleans if they pass skips to continue (if exact was set to false skips this line)
             if exact and distance ~= radius then goto continue end
 
-            -- direction filter (optional)
             if allowedDirections then
                 local match = false
                 for _, dir in ipairs(allowedDirections) do
@@ -93,19 +95,22 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
                     end
                 end
                 if not match then goto continue end
-            end         
+            end
 
             local neighborQ = q + dq
             local neighborR = r + dr
             local tile = getTile(neighborQ, neighborR)
             if tile then
                 table.insert(results, tile)
+                --[[if DEBUG_MODE then
+                    debug.log(string.format("  → found tile (%d, %d)", tile.q, tile.r))
+                end]]
             end
-                
+
             ::continue::
         end
     end
-    
+
     return results
 end
 
@@ -148,7 +153,10 @@ end
 
 function getReachableTiles(startQ, startR, maxCost, unit)
     local start = getTile(startQ, startR)
-    if not start then return {} end
+    if not start then 
+        debug.log("[getReachableTiles] Start tile not found!")
+        return {}
+    end
 
     local reachable = {}
     local queue = {}
@@ -157,21 +165,40 @@ function getReachableTiles(startQ, startR, maxCost, unit)
     table.insert(queue, start)
     reachable[start.q .. "," .. start.r] = start
 
+    -- Always log the initial conditions
+    debug.log(string.format("[getReachableTiles] Start at (%d,%d) with max cost %d", startQ, startR, maxCost))
+
     while #queue > 0 do
         local current = table.remove(queue, 1)
         local neighbors = getNeighbors(current.q, current.r)
 
+        debug.log(string.format("[getReachableTiles] Processing tile (%d,%d)", current.q, current.r))
+
         for _, neighbor in ipairs(neighbors) do
+            -- Calculate the total cost to reach this neighbor
             local cost = current.costSoFar + neighbor.moveCost
 
-            -- Skip if over cost or already visited with lower cost
+            -- Skip neighbors whose total cost exceeds maxCost
+            if cost > maxCost then
+                debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as cost %d exceeds maxCost %d", neighbor.q, neighbor.r, cost, maxCost))
+                goto continue
+            end
+
+            -- Log the cost calculation for each neighbor
+            debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with cost %d", neighbor.q, neighbor.r, cost))
+
+            -- Skip if already visited with lower cost
             local key = neighbor.q .. "," .. neighbor.r
-            if cost <= maxCost and canMoveThrough(neighbor, unit) 
+            if cost <= maxCost and canMoveThrough(neighbor, unit)
             and (not reachable[key] or cost < reachable[key].costSoFar) then
                 neighbor.costSoFar = cost
                 reachable[key] = neighbor
                 table.insert(queue, neighbor)
+
+                debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, cost))
             end
+
+            ::continue::
         end
     end
 
@@ -180,6 +207,12 @@ function getReachableTiles(startQ, startR, maxCost, unit)
     for _, tile in pairs(reachable) do
         tile.costSoFar = nil -- clean it up
         table.insert(result, tile)
+    end
+
+    -- Final reachable tiles log
+    debug.log("[getReachableTiles] Reachable tiles:")
+    for _, tile in ipairs(result) do
+        debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
     end
 
     return result

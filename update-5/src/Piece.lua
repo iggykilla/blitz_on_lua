@@ -54,14 +54,16 @@ function Piece:getValidMoves()
     end
 
     local computed = self:computeValidMoves()
-
-    if type(computed) ~= "table" then
-        if not self._warnedInvalid then
-            debug.log(string.format("[getValidMoves] ERROR: computeValidMoves() returned %s for %s", type(computed), self.type))
-            self._warnedInvalid = true
+    
+    --[[if DEBUG_MODE then
+        if type(computed) ~= "table" then
+            if not self._warnedInvalid then
+                debug.log(string.format("[getValidMoves] ERROR: computeValidMoves() returned %s for %s", type(computed), self.type))
+                self._warnedInvalid = true
+            end
+            return {}
         end
-        return {}
-    end
+    end]]
 
     self.cachedMoves = computed
     return self.cachedMoves
@@ -88,12 +90,27 @@ end
 function Piece:filterAccessibleTiles(tiles)
     local result = {}
     for _, tile in ipairs(tiles) do
-        if self:isTileAccessible(tile) then
+        local accessible = self:isTileAccessible(tile)
+
+        --[[if DEBUG_MODE then
+            debug.log(string.format(
+                "[%s (%s)] filterAccessibleTiles → (%d,%d) occupied=%s by %s → %s",
+                self.type,
+                self.team,
+                tile.q, tile.r,
+                tostring(tile.occupied),
+                tile.unit and tile.unit.team or "none",
+                accessible and "✅ allowed" or "❌ blocked"
+            ))
+        end]]
+
+        if accessible then
             table.insert(result, tile)
         end
     end
     return result
 end
+
 
 function Piece:modifyMoveCost(tile)
     if tile and tile.moveCost then

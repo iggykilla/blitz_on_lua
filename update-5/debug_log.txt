@@ -1,11 +1,39 @@
-[16:14:12] Hello again!
-[16:14:12] Game started
-[16:14:13] [Infantry:getValidMoves] Raw neighbors:
-[16:14:13]  - (1, -1)
-[16:14:13]  - (1, 0)
-[16:14:13]  - (2, -2)
-[16:14:14] [Infantry:getValidMoves] Raw neighbors:
-[16:14:14]  - (1, 0)
-[16:14:14]  - (1, 1)
-[16:14:14]  - (2, -1)
-[16:14:14] [getValidMoves] ERROR: computeValidMoves() returned nil for commander
+[16:25:11] Hello again!
+[16:25:11] Game started
+[16:25:12] [tank (blue)] filterAccessibleTiles → (-1,1) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (-1,2) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (0,0) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (0,2) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (-2,1) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (-2,3) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (0,-1) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (0,3) occupied=false by none → ✅ allowed
+[16:25:12] [tank (blue)] filterAccessibleTiles → (2,-1) occupied=true by blue → ❌ blocked
+[16:25:12] [tank (blue)] filterAccessibleTiles → (2,1) occupied=false by none → ✅ allowed
+[16:25:13] [Infantry:getValidMoves] Raw neighbors:
+[16:25:13]  - (1, -1)
+[16:25:13]  - (1, 0)
+[16:25:13]  - (2, -2)
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,-1) occupied=false by none → ✅ allowed
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (2,-2) occupied=false by none → ✅ allowed
+[16:25:13] [Infantry:getValidMoves] Raw neighbors:
+[16:25:13]  - (1, 0)
+[16:25:13]  - (1, 1)
+[16:25:13]  - (2, -1)
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
+[16:25:13] [infantry (blue)] filterAccessibleTiles → (2,-1) occupied=true by blue → ❌ blocked
+[16:25:13] [horse (blue)] filterAccessibleTiles → (0,2) occupied=false by none → ✅ allowed
+[16:25:13] [horse (blue)] filterAccessibleTiles → (0,3) occupied=false by none → ✅ allowed
+[16:25:13] [horse (blue)] filterAccessibleTiles → (0,4) occupied=false by none → ✅ allowed
+[16:25:13] [horse (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
+[16:25:13] [horse (blue)] filterAccessibleTiles → (2,0) occupied=true by blue → ❌ blocked
+[16:25:13] [horse (blue)] filterAccessibleTiles → (3,0) occupied=true by blue → ❌ blocked
+[16:25:13] [horse (blue)] filterAccessibleTiles → (4,0) occupied=true by blue → ❌ blocked
+[16:25:14] [getValidMoves] ERROR: computeValidMoves() returned nil for commander
+[16:25:14] [general (blue)] filterAccessibleTiles → (3,0) occupied=true by blue → ❌ blocked
+[16:25:14] [general (blue)] filterAccessibleTiles → (3,1) occupied=false by none → ✅ allowed
+[16:25:14] [general (blue)] filterAccessibleTiles → (4,-1) occupied=false by none → ✅ allowed

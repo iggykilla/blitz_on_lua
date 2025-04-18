@@ -24,6 +24,10 @@ function Infantry:computeValidMoves()
 
     local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
 
+    local reachableTiles = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self) 
+
+    debug.log("[Infantry:getValidMoves] Reachable tiles: " .. #reachableTiles)
+
     debug.log("[Infantry:getValidMoves] Raw neighbors:")
     for _, tile in ipairs(raw) do
         debug.log(string.format(" - (%d, %d)", tile.q, tile.r))

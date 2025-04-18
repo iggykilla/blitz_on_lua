@@ -1,0 +1,11 @@
+[16:14:12] Hello again!
+[16:14:12] Game started
+[16:14:13] [Infantry:getValidMoves] Raw neighbors:
+[16:14:13]  - (1, -1)
+[16:14:13]  - (1, 0)
+[16:14:13]  - (2, -2)
+[16:14:14] [Infantry:getValidMoves] Raw neighbors:
+[16:14:14]  - (1, 0)
+[16:14:14]  - (1, 1)
+[16:14:14]  - (2, -1)
+[16:14:14] [getValidMoves] ERROR: computeValidMoves() returned nil for commander

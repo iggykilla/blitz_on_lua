@@ -18,11 +18,16 @@ function Commander:computeValidMoves()
     return self:filterAccessibleTiles(reachableTiles)
 end
 
+function Commander:getMaxMoveCost()
+    return 3
+end
+
+function Commander:computeValidAttacks()
+    local raw = getNeighbors(self.q, self.r, COMMANDER_MOVE_RADIUS)
+    return self:filterAttackableTiles(raw)
+end
+
 function Commander:canAttack(q, r)
     -- Placeholder for Update 5
     return false
-end
-
-function Commander:getMaxMoveCost()
-    return 3
 end

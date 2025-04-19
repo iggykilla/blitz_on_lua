@@ -1,3 +1,10 @@
+local function getTankRangedDirections()
+    return {
+        {-2, 0}, {-2, 2}, {0, 2},
+        {2, 0}, {2, -2}, {0, -2}
+    }
+end
+
 Tank = Class{__includes = Piece}
 
 function Tank:init(team, q, r)
@@ -17,20 +24,21 @@ function Tank:specialMoves()
     local short = getNeighbors(self.q, self.r, TANK_SHORT_RADIUS)
 
     -- Define custom movement directions for long radius
-    local directions = {
-        {-2, 0}, {-2, 2}, {0, 2},
-        {2, 0}, {2, -2}, {0, -2}
-    }
+    local directions = getTankRangedDirections()
 
     -- Get neighbors within the long radius with specific directions
     local long = getNeighbors(self.q, self.r, TANK_LONG_RADIUS, true, directions)
 
-    -- Combine short and long-range moves
+    -- Combine into a new result table
+    local result = {}
+    for _, tile in ipairs(short) do
+        table.insert(result, tile)
+    end
     for _, tile in ipairs(long) do
-        table.insert(short, tile)
+        table.insert(result, tile)
     end
 
-    return short
+    return result
 end
 
 function Tank:computeValidMoves()
@@ -44,11 +52,16 @@ function Tank:computeValidMoves()
     return self:filterAccessibleTiles(reachableTiles)
 end
 
+function Tank:getMaxMoveCost()
+    return 2
+end
+
+function Tank:computeValidAttacks()
+    local raw = self:specialMoves()
+    return self:filterAttackableTiles(raw)
+end
+
 function Tank:canAttack(q, r)
     -- Placeholder for Update 5
     return false
-end
-
-function Tank:getMaxMoveCost()
-    return 2
 end

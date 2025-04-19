@@ -18,11 +18,16 @@ function Horse:computeValidMoves()
     return self:filterAccessibleTiles(reachableTiles)
 end
 
+function Horse:getMaxMoveCost()
+    return 2 -- or whatever value you want
+end
+
+function Horse:computeValidAttacks()
+    local raw = getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
+    return self:filterAttackableTiles(raw)
+end
+
 function Horse:canAttack(q, r)
     -- Placeholder for Update 5
     return false
-end
-
-function Horse:getMaxMoveCost()
-    return 2 -- or whatever value you want
 end

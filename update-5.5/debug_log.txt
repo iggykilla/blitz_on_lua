@@ -1,0 +1,13 @@
+[17:24:06] Hello again!
+[17:24:06] Game started
+[17:24:07] [highlightTiles] Highlighting 0 move tiles for infantry (red)
+[17:24:07] [highlightTiles] Highlighting 3 attack tiles for infantry (red)
+[17:24:07]   → Attack tile: (0, 1)
+[17:24:07]   → Attack tile: (2, -1)
+[17:24:07]   → Attack tile: (2, 0)
+[17:24:09] [highlightTiles] Highlighting 2 move tiles for infantry (red)
+[17:24:09]   → Move tile: (1, 2)
+[17:24:09]   → Move tile: (2, 1)
+[17:24:09] [highlightTiles] Highlighting 2 attack tiles for infantry (red)
+[17:24:09]   → Attack tile: (0, 1)
+[17:24:09]   → Attack tile: (2, 0)

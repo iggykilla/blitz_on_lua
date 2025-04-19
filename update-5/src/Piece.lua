@@ -1,3 +1,4 @@
+
 --[[
     Piece:init(unitType, team, q, r)
     Piece:getLabel()
@@ -48,6 +49,10 @@ function Piece:canMoveTo(q, r)
     return false
 end
 
+function Piece:getMaxMoveCost()
+    return 1 -- default move range (e.g., for Infantry)
+end
+
 function Piece:getValidMoves()
     if self.cachedMoves then
         return self.cachedMoves
@@ -85,11 +90,6 @@ function Piece:computeValidMoves()
     return self:filterAccessibleTiles(reachableTiles)
 end
 
-
-function Piece:getMaxMoveCost()
-    return 1 -- default move range (e.g., for Infantry)
-end
-
 function Piece:isTileAccessible(tile)
     return not tile.occupied or tile.unit.team ~= self.team
 end
@@ -118,10 +118,66 @@ function Piece:filterAccessibleTiles(tiles)
     return result
 end
 
-
 function Piece:modifyMoveCost(tile)
     if tile and tile.moveCost then
         return tile.moveCost
     end
     return 1 -- default fallback cost
+end
+
+function Piece:markAttackableTiles(tile)
+    return tile.occupied and tile.unit.team ~= self.team 
+ end
+ 
+ function Piece:filterAttackableTiles(tiles)
+     local result = {}
+     for _, tile in ipairs(tiles) do
+         local attackable = self:markAttackableTiles(tile)
+ 
+ 
+         if attackable then
+             tile.attackable = true
+             table.insert(result, tile)
+             debug.log(string.format("[markAttackableTiles] Tile (%d,%d) marked as ✅ attackable (enemy unit)", tile.q, tile.r))
+         else
+             debug.log(string.format("[markAttackableTiles] Tile (%d,%d) marked as ❌ not attackable", tile.q, tile.r))
+         end
+     end
+     return result
+ end
+ 
+ function Piece:computeValidAttacks()
+     local raw = getNeighbors(self.q, self.r, 1)
+     debug.log(string.format("[getValidAttacks] Checking neighbors of (%d, %d)", self.q, self.r))
+     
+     local validAttacks = self:filterAttackableTiles(raw)
+ 
+     debug.log(string.format("[getValidAttacks] Found %d valid attack targets.", #validAttacks))
+     
+     return validAttacks
+ end
+
+ function Piece:getValidAttacks()
+    if self.cachedAttacks then
+        return self.cachedAttacks
+    end
+
+    local computed = self:computeValidAttacks()
+    
+    if DEBUG_MODE then
+        if type(computed) ~= "table" then
+            if not self._warnedInvalid then
+                debug.log(string.format("[getValidAttacks] ERROR: computeValidAttacks () returned %s for %s", type(computed), self.type))
+                self._warnedInvalid = true
+            end
+            return {}
+        end
+    end
+
+    self.cachedAttacks = computed
+    return self.cachedAttacks
+end
+
+function Piece:invalidateAttacks()
+    self.cachedAttacks = nil
 end

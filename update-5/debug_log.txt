@@ -1,39 +1,60 @@
-[16:25:11] Hello again!
-[16:25:11] Game started
-[16:25:12] [tank (blue)] filterAccessibleTiles → (-1,1) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (-1,2) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (0,0) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (0,2) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (-2,1) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (-2,3) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (0,-1) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (0,3) occupied=false by none → ✅ allowed
-[16:25:12] [tank (blue)] filterAccessibleTiles → (2,-1) occupied=true by blue → ❌ blocked
-[16:25:12] [tank (blue)] filterAccessibleTiles → (2,1) occupied=false by none → ✅ allowed
-[16:25:13] [Infantry:getValidMoves] Raw neighbors:
-[16:25:13]  - (1, -1)
-[16:25:13]  - (1, 0)
-[16:25:13]  - (2, -2)
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,-1) occupied=false by none → ✅ allowed
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (2,-2) occupied=false by none → ✅ allowed
-[16:25:13] [Infantry:getValidMoves] Raw neighbors:
-[16:25:13]  - (1, 0)
-[16:25:13]  - (1, 1)
-[16:25:13]  - (2, -1)
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,0) occupied=false by none → ✅ allowed
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
-[16:25:13] [infantry (blue)] filterAccessibleTiles → (2,-1) occupied=true by blue → ❌ blocked
-[16:25:13] [horse (blue)] filterAccessibleTiles → (0,2) occupied=false by none → ✅ allowed
-[16:25:13] [horse (blue)] filterAccessibleTiles → (0,3) occupied=false by none → ✅ allowed
-[16:25:13] [horse (blue)] filterAccessibleTiles → (0,4) occupied=false by none → ✅ allowed
-[16:25:13] [horse (blue)] filterAccessibleTiles → (1,1) occupied=false by none → ✅ allowed
-[16:25:13] [horse (blue)] filterAccessibleTiles → (2,0) occupied=true by blue → ❌ blocked
-[16:25:13] [horse (blue)] filterAccessibleTiles → (3,0) occupied=true by blue → ❌ blocked
-[16:25:13] [horse (blue)] filterAccessibleTiles → (4,0) occupied=true by blue → ❌ blocked
-[16:25:14] [getValidMoves] ERROR: computeValidMoves() returned nil for commander
-[16:25:14] [general (blue)] filterAccessibleTiles → (3,0) occupied=true by blue → ❌ blocked
-[16:25:14] [general (blue)] filterAccessibleTiles → (3,1) occupied=false by none → ✅ allowed
-[16:25:14] [general (blue)] filterAccessibleTiles → (4,-1) occupied=false by none → ✅ allowed
+[14:38:15] Hello again!
+[14:38:15] Game started
+[14:38:21] Hello again!
+[14:38:21] Game started
+[14:38:22] [getValidAttacks] Checking neighbors of (1, 1)
+[14:38:22] [markAttackableTiles] Tile (0,1) marked as ✅ attackable (enemy unit)
+[14:38:22] [markAttackableTiles] Tile (0,2) marked as ❌ not attackable
+[14:38:22] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:38:22] [markAttackableTiles] Tile (1,2) marked as ❌ not attackable
+[14:38:22] [markAttackableTiles] Tile (2,0) marked as ✅ attackable (enemy unit)
+[14:38:22] [markAttackableTiles] Tile (2,1) marked as ❌ not attackable
+[14:38:22] [getValidAttacks] Found 2 valid attack targets.
+[14:38:22] [highlightAttackableEnemies] Highlighting enemy at (0,1) in red
+[14:38:22] [highlightAttackableEnemies] Highlighting enemy at (2,0) in red
+[14:38:27] [getValidAttacks] Checking neighbors of (2, -1)
+[14:38:27] [markAttackableTiles] Tile (1,-1) marked as ❌ not attackable
+[14:38:27] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:38:27] [markAttackableTiles] Tile (2,-2) marked as ❌ not attackable
+[14:38:27] [markAttackableTiles] Tile (2,0) marked as ❌ not attackable
+[14:38:27] [markAttackableTiles] Tile (3,-2) marked as ❌ not attackable
+[14:38:27] [markAttackableTiles] Tile (3,-1) marked as ❌ not attackable
+[14:38:27] [getValidAttacks] Found 0 valid attack targets.
+[14:38:38] [getValidAttacks] Checking neighbors of (2, 0)
+[14:38:38] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:38:38] [markAttackableTiles] Tile (1,1) marked as ✅ attackable (enemy unit)
+[14:38:38] [markAttackableTiles] Tile (2,-1) marked as ❌ not attackable
+[14:38:38] [markAttackableTiles] Tile (2,1) marked as ❌ not attackable
+[14:38:38] [markAttackableTiles] Tile (3,-1) marked as ❌ not attackable
+[14:38:38] [markAttackableTiles] Tile (3,0) marked as ❌ not attackable
+[14:38:38] [getValidAttacks] Found 1 valid attack targets.
+[14:38:38] [highlightAttackableEnemies] Highlighting enemy at (1,1) in red
+[14:41:18] Hello again!
+[14:41:18] Game started
+[14:41:20] [getValidAttacks] Checking neighbors of (1, 1)
+[14:41:20] [markAttackableTiles] Tile (0,1) marked as ✅ attackable (enemy unit)
+[14:41:20] [markAttackableTiles] Tile (0,2) marked as ❌ not attackable
+[14:41:20] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:41:20] [markAttackableTiles] Tile (1,2) marked as ❌ not attackable
+[14:41:20] [markAttackableTiles] Tile (2,0) marked as ✅ attackable (enemy unit)
+[14:41:20] [markAttackableTiles] Tile (2,1) marked as ❌ not attackable
+[14:41:20] [getValidAttacks] Found 2 valid attack targets.
+[14:41:20] [highlightAttackableEnemies] Highlighting enemy at (0,1) in red
+[14:41:20] [highlightAttackableEnemies] Highlighting enemy at (2,0) in red
+[14:41:21] [getValidAttacks] Checking neighbors of (2, -1)
+[14:41:21] [markAttackableTiles] Tile (1,-1) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (2,-2) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (2,0) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (3,-2) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (3,-1) marked as ❌ not attackable
+[14:41:21] [getValidAttacks] Found 0 valid attack targets.
+[14:41:21] [getValidAttacks] Checking neighbors of (2, 0)
+[14:41:21] [markAttackableTiles] Tile (1,0) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (1,1) marked as ✅ attackable (enemy unit)
+[14:41:21] [markAttackableTiles] Tile (2,-1) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (2,1) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (3,-1) marked as ❌ not attackable
+[14:41:21] [markAttackableTiles] Tile (3,0) marked as ❌ not attackable
+[14:41:21] [getValidAttacks] Found 1 valid attack targets.
+[14:41:21] [highlightAttackableEnemies] Highlighting enemy at (1,1) in red

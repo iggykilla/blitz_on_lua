@@ -43,17 +43,18 @@ function generateHexGrid(offsetX, offsetY)
         for r = r1, r2 do
             local x, y = hexToPixel(q, r)
             local tile = {
-                q = q,
-                r = r,
-                x = x + offsetX,
-                y = y + offsetY,
-                unit = nil,
-                team = nil,
-                occupied = false,
-                selected = false,
-                highlighted = false,
-                flashTimer = 0,
-                moveCost = 1
+                q = q,                                  -- q coordinate for the hex tile
+                r = r,                                  -- r coordinate for the hex tile
+                x = x + offsetX,                        -- x position for rendering
+                y = y + offsetY,                        -- y position for rendering
+                unit = nil,                             -- The unit occupying the tile (if any)
+                team = nil,                             -- The team of the unit occupying the tile (if any)
+                occupied = false,                       -- Whether the tile is occupied by a unit
+                selected = false,                       -- Whether the tile is selected
+                highlightType = nil,                     -- Whether the tile is highlightType
+                flashTimer = 0,                         -- Timer for flashing the tile (if needed)
+                moveCost = 1,                           -- The movement cost of the tile (e.g., 1 for normal terrain)
+                attackable = false                      -- New flag to mark the tile as attackable (if occupied by enemy)
             }
             
         table.insert(tiles, tile)
@@ -139,6 +140,7 @@ function moveUnit(q1, r1, q2, r2)
     to.unit = from.unit
     to.unit:setPosition(q2, r2)
     to.unit:invalidateMoves() -- 🧼 Clear cached moves
+    to.unit:invalidateAttacks()
     to.occupied = true
     to.flashTimer = 0.8
 
@@ -154,7 +156,7 @@ end
 function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
     local start = getTile(startQ, startR)
     if not start then 
-        debug.log("[getReachableTiles] Start tile not found!")
+        --debug.log("[getReachableTiles] Start tile not found!")
         return {}
     end
 
@@ -166,7 +168,7 @@ function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
     reachable[start.q .. "," .. start.r] = start
 
     -- Always log the initial conditions
-    debug.log(string.format("[getReachableTiles] Start at (%d,%d) with max cost %d", startQ, startR, maxCost))
+    --debug.log(string.format("[getReachableTiles] Start at (%d,%d) with max cost %d", startQ, startR, maxCost))
 
     -- Use the validTiles passed from computeValidMoves
     local neighbors = validTiles
@@ -178,11 +180,11 @@ function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
 
         -- Skip neighbors whose total cost exceeds maxCost
         if modifiedCost > maxCost then
-            debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as modified cost %d exceeds maxCost %d", neighbor.q, neighbor.r, modifiedCost, maxCost))
+            --debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as modified cost %d exceeds maxCost %d", neighbor.q, neighbor.r, modifiedCost, maxCost))
             goto continue
         end
 
-        debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with modified cost %d", neighbor.q, neighbor.r, modifiedCost))
+        --debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with modified cost %d", neighbor.q, neighbor.r, modifiedCost))
 
         -- Skip if already visited with lower cost
         local key = neighbor.q .. "," .. neighbor.r
@@ -192,7 +194,7 @@ function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
             reachable[key] = neighbor
             table.insert(queue, neighbor)
 
-            debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, modifiedCost))
+            --debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, modifiedCost))
         end
 
         ::continue::
@@ -205,10 +207,10 @@ function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
         table.insert(result, tile)
     end
 
-    debug.log("[getReachableTiles] Reachable tiles:")
+    --[[debug.log("[getReachableTiles] Reachable tiles:")
     for _, tile in ipairs(result) do
-        debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
-    end
+         debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
+    end]]
 
     return result
 end

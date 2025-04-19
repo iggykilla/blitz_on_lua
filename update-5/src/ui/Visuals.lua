@@ -3,17 +3,15 @@ local Visuals = {}
 function Visuals.drawTile(tile, smallFont, mediumFont)
     local hexPoints = getHexPoints(tile.x, tile.y, HEX_RADIUS)
 
-    -- Highlighted fill first (so outlines draw over)
-    if tile.highlighted then
-        love.graphics.setColor(0, 1, 0, 0.3) -- green for valid move
+    -- Highlight attackable enemies first (in red)
+    if tile.attackable then
+        love.graphics.setColor(1, 0, 0)  -- Red color for enemy tiles (attackable enemies)
+        love.graphics.polygon("fill", hexPoints)
+    elseif tile.highlighted then
+        -- Green for valid move (already set by highlightValidMovesFor)
+        love.graphics.setColor(0, 1, 0, 0.3)  -- Green for valid move
         love.graphics.polygon("fill", hexPoints)
     end  
-
-    -- Optional flash overlay
-    if tile.flashTimer > 0 then
-        love.graphics.setColor(1, 1, 1, tile.flashTimer)
-        love.graphics.polygon("fill", hexPoints)
-    end
 
     -- Draw hex outline
     love.graphics.setColor(1, 1, 1)
@@ -44,7 +42,6 @@ function Visuals.drawTile(tile, smallFont, mediumFont)
     end
 end
 
-
 function Visuals.highlightValidMovesFor(unit)
     -- Clear previous highlights
     for _, tile in ipairs(tiles) do
@@ -63,6 +60,23 @@ function Visuals.highlightValidMovesFor(unit)
     end
 end
 
+function Visuals.highlightAttackableEnemies(unit)
+    -- Reset all tiles
+    for _, tile in ipairs(tiles) do
+        tile.attackable = false
+        tile.highlighted = false
+    end
+
+    -- Get attackable tiles (logic only)
+    local attackableTiles = unit:getValidAttacks()
+
+    -- Mark visuals
+    for _, tile in ipairs(attackableTiles) do
+        tile.attackable = true
+        tile.highlighted = true
+        debug.log(string.format("[highlightAttackableEnemies] Highlighting enemy at (%d,%d) in red", tile.q, tile.r))
+    end
+end
+
+
 return Visuals
-
-

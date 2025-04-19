@@ -24,7 +24,7 @@ function debugger.logAllTiles(tiles)
         debugger.log("Tile at " .. tile.q .. "," .. tile.r)
 
         -- Ordered fields
-        local fields = { "q", "r", "x", "y", "occupied", "selected", "highlighted" }
+        local fields = { "q", "r", "x", "y", "occupied", "selected", "highlightType" }
 
         for _, key in ipairs(fields) do
             debugger.log("  " .. key .. ": " .. tostring(tile[key]))

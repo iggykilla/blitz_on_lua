@@ -38,6 +38,9 @@ function love.load()
         placeUnit(pos[1], pos[2], "infantry", "blue")
     end
 
+    -- red infantry
+    placeUnit(1, 1, "infantry", "red")
+
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)
     
@@ -127,6 +130,7 @@ function love.keypressed(key)
     elseif key == "escape" then
         love.event.quit()
     elseif key == "tab" then
+
         unitIndex = unitIndex + 1
         if unitIndex > #placedUnits then
             unitIndex = 1
@@ -145,5 +149,17 @@ function love.keypressed(key)
         if tile then
             tile.selected = true
         end
+
+        -- Clear old highlights
+        for _, tile in ipairs(tiles) do
+            tile.highlighted = false
+            tile.attackable = false
+        end
+
+        -- 🔧 Invalidate cache so highlight logic re-marks tiles
+        selectedUnit:invalidateAttacks()
+
+        -- Re-highlight for new unit
+        Visuals.highlightAttackableEnemies(selectedUnit)
     end
 end

@@ -241,7 +241,7 @@ function getAttackableTilesRanged(startQ, startR, unit, validTiles)
         -- Optional cost filtering (in case we add variable cost per tile later)
         if cost > maxCost then goto continue end
 
-        local distance = math.abs(neighbor.q - startQ) + math.abs(neighbor.r - startR)
+        local distance = HexMath.hexDistance(startQ, startR, neighbor.q, neighbor.r)
         if distance <= maxRange and unit:canAttack(neighbor.q, neighbor.r) then
             attackable[neighbor.q .. "," .. neighbor.r] = neighbor
     --        debug.log(string.format("[getAttackableTilesRanged] ✅ (%d,%d) enemy in range %d", neighbor.q, neighbor.r, distance))

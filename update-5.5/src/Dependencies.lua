@@ -17,6 +17,7 @@ require 'src/constants'
 
 -- Board - Tiles Logic
 require 'src/HexBoard'
+HexMath = require 'src.HexMath'
 
 require 'src/Piece'
 -- Factory (uses above units)
@@ -35,3 +36,5 @@ require 'src/units/General'
 -- requires logic to print debug files
 debug = require("debugger")
 debug.log("Hello again!")
+
+

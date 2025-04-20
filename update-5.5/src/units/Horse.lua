@@ -14,8 +14,7 @@ end
 
 function Horse:computeValidMoves()
     local raw = getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
-    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
-    return self:filterAccessibleTiles(reachableTiles)
+    return self:filterAccessibleTiles(raw)
 end
 
 function Horse:getMaxMoveCost()
@@ -25,9 +24,4 @@ end
 function Horse:computeValidAttacks()
     local raw = getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
     return self:filterAttackableTiles(raw)
-end
-
-function Horse:canAttack(q, r)
-    -- Placeholder for Update 5
-    return false
 end

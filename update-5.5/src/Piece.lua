@@ -80,14 +80,8 @@ end
 
 -- Default fallback
 function Piece:computeValidMoves()
-    -- Get raw neighbors (within radius 1)
     local raw = getNeighbors(self.q, self.r, 1)
-
-    -- Get reachable tiles considering cost and movement rules
-    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
-
-    -- Filter out tiles that aren't accessible
-    return self:filterAccessibleTiles(reachableTiles)
+    return self:filterAccessibleTiles(raw)
 end
 
 function Piece:isTileAccessible(tile)
@@ -129,7 +123,7 @@ function Piece:markAttackableTiles(tile)
     return tile.occupied and tile.unit.team ~= self.team 
  end
  
- function Piece:filterAttackableTiles(tiles)
+function Piece:filterAttackableTiles(tiles)
     local result = {}
     for _, tile in ipairs(tiles) do
         local attackable = self:markAttackableTiles(tile)
@@ -145,25 +139,22 @@ function Piece:markAttackableTiles(tile)
     return result
 end
  
- function Piece:computeValidAttacks()
-     local raw = getNeighbors(self.q, self.r, 1)
---   debug.log(string.format("[getValidAttacks] Checking neighbors of (%d, %d)", self.q, self.r))
-     
-     local validAttacks = self:filterAttackableTiles(raw)
- 
---   debug.log(string.format("[getValidAttacks] Found %d valid attack targets.", #validAttacks))
-     
-     return validAttacks
- end
+function Piece:computeValidAttacks()
+    -- Get raw tiles to consider (could be special pattern)
+    local raw = getNeighbors(self.q, self.r, self:maxAttackRange())
+    -- Optional final filter (if needed for terrain, visibility, etc.)
+    return self:filterAttackableTiles(raw)
+end
 
- function Piece:getValidAttacks()
+-- For visuals
+function Piece:getValidAttacks()
     if self.cachedAttacks then
         return self.cachedAttacks
     end
 
     local computed = self:computeValidAttacks()
     
-    if DEBUG_MODE then
+ --[[ if DEBUG_MODE then
         if type(computed) ~= "table" then
             if not self._warnedInvalid then
                 debug.log(string.format("[getValidAttacks] ERROR: computeValidAttacks () returned %s for %s", type(computed), self.type))
@@ -171,7 +162,7 @@ end
             end
             return {}
         end
-    end
+    end]]
 
     self.cachedAttacks = computed
     return self.cachedAttacks
@@ -180,3 +171,18 @@ end
 function Piece:invalidateAttacks()
     self.cachedAttacks = nil
 end
+
+function Piece:attackCost() return 1 end
+function Piece:maxAttackCost() return 1 end
+function Piece:maxAttackRange() return 1 end
+
+function Piece:canAttack(q, r)
+    local tile = getTile(q, r)
+    if not tile or not self:markAttackableTiles(tile) then
+        return false
+    end
+
+    return hasLineOfSight(self, getTile(self.q, self.r), tile)
+end
+
+

@@ -3,15 +3,14 @@ local Visuals = {}
 function Visuals.drawTile(tile, smallFont, mediumFont)
     local hexPoints = getHexPoints(tile.x, tile.y, HEX_RADIUS)
 
-    -- Fill green if move tile
-    if tile.highlighted then
-        love.graphics.setColor(0, 1, 0, 0.3)
-        love.graphics.polygon("fill", hexPoints)
-    end
-
-    --  Overlay red if attack tile
+    --  Fill red if attack tile
     if tile.attackable then
         love.graphics.setColor(1, 0, 0, 0.4)
+        love.graphics.polygon("fill", hexPoints)
+
+    -- Fill green if move tile
+    elseif tile.highlighted then
+        love.graphics.setColor(0, 1, 0, 0.3)
         love.graphics.polygon("fill", hexPoints)
     end
 
@@ -48,10 +47,10 @@ function Visuals.highlightTiles(unit, mode)
     local tiles = {}
     if mode == "move" then
         tiles = unit:getValidMoves()
-        debug.log(string.format("[highlightTiles] Highlighting %d move tiles for %s (%s)", #tiles, unit.type, unit.team))
+    --    debug.log(string.format("[highlightTiles] Highlighting %d move tiles for %s (%s)", #tiles, unit.type, unit.team))
         for _, tile in ipairs(tiles) do
             tile.highlighted = true
-            debug.log(string.format("  → Move tile: (%d, %d)", tile.q, tile.r))
+    --        debug.log(string.format("  → Move tile: (%d, %d)", tile.q, tile.r))
         end
 
     elseif mode == "attack" then

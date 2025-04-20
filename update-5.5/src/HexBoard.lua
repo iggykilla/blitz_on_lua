@@ -153,78 +153,65 @@ function moveUnit(q1, r1, q2, r2)
     return true
 end
 
-function getReachableTiles(startQ, startR, validTiles, maxCost, unit)
+function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
     local start = getTile(startQ, startR)
-    if not start then 
-        --debug.log("[getReachableTiles] Start tile not found!")
+    if not start then
+        debug.log("[getReachableTiles] ❌ Invalid start tile")
         return {}
     end
+    debug.log(string.format("[getReachableTiles] 🚀 Start at (%d,%d)", startQ, startR))
 
     local reachable = {}
-    local queue = {}
+    local visited = {}
+    local queue = {{tile = start, cost = 0}}
 
-    start.costSoFar = 0
-    table.insert(queue, start)
-    reachable[start.q .. "," .. start.r] = start
+    while #queue > 0 do
+        local current = table.remove(queue, 1)
+        local tile = current.tile
+        local cost = current.cost
+        local key = tile.q .. "," .. tile.r
 
-    -- Always log the initial conditions
-    --debug.log(string.format("[getReachableTiles] Start at (%d,%d) with max cost %d", startQ, startR, maxCost))
+        if not visited[key] or cost < visited[key] then
+            debug.log(string.format("[getReachableTiles] ✅ Visiting (%d,%d) with cost %d", tile.q, tile.r, cost))
+            visited[key] = cost
+            tile.costSoFar = cost
+            reachable[key] = tile
 
-    -- Use the validTiles passed from computeValidMoves
-    local neighbors = validTiles
-
-    -- Process neighbors directly without recalculating them
-    for _, neighbor in ipairs(neighbors) do
-        -- Modify the move cost based on tile-specific rules
-        local modifiedCost = start.costSoFar + unit:modifyMoveCost(neighbor)
-
-        -- Skip neighbors whose total cost exceeds maxCost
-        if modifiedCost > maxCost then
-            --debug.log(string.format("[getReachableTiles] Skipping neighbor (%d,%d) as modified cost %d exceeds maxCost %d", neighbor.q, neighbor.r, modifiedCost, maxCost))
-            goto continue
+            for _, neighbor in ipairs(getNeighbors(tile.q, tile.r)) do
+                local moveCost = cost + unit:modifyMoveCost(neighbor)
+                if canMoveThrough(neighbor, unit) then
+                    if moveCost <= maxCost then
+                        debug.log(string.format("[getReachableTiles] → ✅ Enqueue (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
+                        table.insert(queue, {tile = neighbor, cost = moveCost})
+                    else
+                        debug.log(string.format("[getReachableTiles] → ❌ Too expensive (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
+                    end
+                elseif includeBlocked and not reachable[neighbor.q .. "," .. neighbor.r] then
+                    debug.log(string.format("[getReachableTiles] 🔒 Including blocked tile (%d,%d)", neighbor.q, neighbor.r))
+                    reachable[neighbor.q .. "," .. neighbor.r] = neighbor
+                    neighbor.blocked = true -- Optional flag you can use in filtering
+                else
+                    debug.log(string.format("[getReachableTiles] → ❌ Blocked (%d,%d)", neighbor.q, neighbor.r))
+                end
+            end
         end
-
-        --debug.log(string.format("[getReachableTiles] Checking neighbor (%d,%d) with modified cost %d", neighbor.q, neighbor.r, modifiedCost))
-
-        -- Skip if already visited with lower cost
-        local key = neighbor.q .. "," .. neighbor.r
-        if modifiedCost <= maxCost and canMoveThrough(neighbor, unit)
-        and (not reachable[key] or modifiedCost < reachable[key].costSoFar) then
-            neighbor.costSoFar = modifiedCost
-            reachable[key] = neighbor
-            table.insert(queue, neighbor)
-
-            --debug.log(string.format("[getReachableTiles] Adding neighbor (%d,%d) to reachable with cost %d", neighbor.q, neighbor.r, modifiedCost))
-        end
-
-        ::continue::
     end
 
-    -- Return just the tiles as a list
+    -- Cleanup and return as list
     local result = {}
     for _, tile in pairs(reachable) do
-        tile.costSoFar = nil -- clean it up
+        tile.costSoFar = nil
         table.insert(result, tile)
     end
 
-    --[[debug.log("[getReachableTiles] Reachable tiles:")
+    debug.log(string.format("[getReachableTiles] 🟢 Found %d reachable+blocked tiles", #result))
+    local coords = {}
     for _, tile in ipairs(result) do
-         debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
-    end]]
+        table.insert(coords, string.format("(%d,%d)", tile.q, tile.r))
+    end
+    debug.log("[getReachableTiles] Tiles: " .. table.concat(coords, ", "))
 
     return result
-end
-
-function canMoveThrough(toTile, unit)
-    if toTile.occupied and toTile.unit.team ~= unit.team then
-        return false
-    end
-
-    if toTile.terrain == "mountain" then
-        return false
-    end
-
-    return true
 end
 
 function clearHighlights()
@@ -232,4 +219,111 @@ function clearHighlights()
         tile.highlighted = false
         tile.attackable = false
     end
+end
+
+function getAttackableTilesRanged(startQ, startR, unit, validTiles)
+    local start = getTile(startQ, startR)
+    if not start then 
+        return {}
+    end
+
+    local attackable = {}
+    local cost = unit:attackCost()
+    local maxCost = unit:maxAttackCost()
+    local maxRange = unit:maxAttackRange()
+
+    local neighbors = validTiles or getNeighbors(startQ, startR, maxRange)
+
+    for _, neighbor in ipairs(neighbors) do
+        -- Must be enemy unit
+        if not neighbor.unit or neighbor.unit.team == unit.team then goto continue end
+
+        -- Optional cost filtering (in case we add variable cost per tile later)
+        if cost > maxCost then goto continue end
+
+        local distance = math.abs(neighbor.q - startQ) + math.abs(neighbor.r - startR)
+        if distance <= maxRange and unit:canAttack(neighbor.q, neighbor.r) then
+            attackable[neighbor.q .. "," .. neighbor.r] = neighbor
+    --        debug.log(string.format("[getAttackableTilesRanged] ✅ (%d,%d) enemy in range %d", neighbor.q, neighbor.r, distance))
+        end
+
+        ::continue::
+    end
+
+    -- Return flat list
+    local result = {}
+    for _, tile in pairs(attackable) do
+        table.insert(result, tile)
+    end
+
+    return result
+end
+
+function isTileBlocked(tile, unit, mode)
+    -- Shared terrain rule
+    if tile.terrain == "mountain" then return true end
+
+    if tile.unit then
+        if mode == "move" then
+            return true -- Block movement through any unit
+        elseif mode == "attack" then
+            -- Can't attack through *any* unit (ally or enemy)
+            return true
+        end
+    end
+
+    return false
+end
+
+function canMoveThrough(tile, unit)
+    return not isTileBlocked(tile, unit, "move")
+end
+
+function canAttackThrough(unit, tile)
+    return not isTileBlocked(tile, unit, "attack")
+end
+
+function hasLineOfSight(unit, fromTile, toTile)
+    local line = HexMath.getLine(fromTile.q, fromTile.r, toTile.q, toTile.r)
+
+    for _, tile in ipairs(line) do
+        if not canAttackThrough(unit, tile) then
+            debug.log(string.format("[LoS] Blocked at (%d,%d)", tile.q, tile.r))
+            return false
+        end
+    end
+
+    return true
+end
+
+function getAttackableTilesMelee(startQ, startR, unit)
+    local reachable = getReachableTiles(startQ, startR, unit:getMaxMoveCost(), unit, true)
+    local attackable = {}
+    local attackCost = unit:attackCost()
+    local maxCost = unit:maxAttackCost()
+
+    debug.log(string.format("[getAttackableTilesMelee] 📦 Reachable tiles: %d, Attack cost: %d", #reachable, attackCost))
+    local coords = {}
+    for _, tile in ipairs(reachable) do
+        table.insert(coords, string.format("(%d,%d)", tile.q, tile.r))
+    end
+    debug.log("[getAttackableTilesMelee] Reachable tiles: " .. table.concat(coords, ", "))
+
+    for _, tile in ipairs(reachable) do
+        if tile.unit and tile.unit.team ~= unit.team then
+            local key = tile.q .. "," .. tile.r
+            if not attackable[key] and attackCost <= maxCost then
+                attackable[key] = tile
+                debug.log(string.format("[getAttackableTilesMelee] ✅ (%d,%d) reachable enemy", tile.q, tile.r))
+            end
+        end
+    end
+
+    -- Return flat list
+    local result = {}
+    for _, tile in pairs(attackable) do
+        table.insert(result, tile)
+    end
+
+    return result
 end

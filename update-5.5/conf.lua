@@ -4,5 +4,5 @@
 ]]
 
 function love.conf(t)
-    t.window.title = "Blitz update-0"
+    t.window.title = "Blitz"
 end

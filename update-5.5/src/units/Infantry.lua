@@ -22,19 +22,12 @@ end
 
 function Infantry:computeValidMoves()
     local forwardDirs = getForwardDirs(self.team)
-
     local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
-    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
-
-    return self:filterAccessibleTiles(reachableTiles)
+    return self:filterAccessibleTiles(raw)
 end
 
 function Infantry:computeValidAttacks()
     local forwardDirs = getForwardDirs(self.team)
     local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
     return self:filterAttackableTiles(raw)
-end
-
-function Infantry:canAttack(q, r)
-    return true -- placeholder
 end

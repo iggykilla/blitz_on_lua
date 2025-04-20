@@ -33,7 +33,7 @@ function love.load()
     placeUnit(2, 2, "horse", "blue")
 
     -- blue infantry
-    local blue_infantry_placement = {{2,-1}, {2,0}}
+    local blue_infantry_placement = {{2,-1}, {2,0}, {0,0}}
     for _, pos in ipairs(blue_infantry_placement) do
         placeUnit(pos[1], pos[2], "infantry", "blue")
     end
@@ -42,6 +42,8 @@ function love.load()
     placeUnit(1, 1, "infantry", "red")
     placeUnit(1, 0, "infantry", "red")
     placeUnit(3, -1, "infantry", "red")
+    placeUnit(0, -1, "infantry", "red")
+    placeUnit(0, 2, "infantry", "red")
 
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)

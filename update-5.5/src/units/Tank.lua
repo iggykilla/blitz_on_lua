@@ -42,14 +42,24 @@ function Tank:specialMoves()
 end
 
 function Tank:computeValidMoves()
-    -- Get the short and long-range valid moves from specialMoves
+    local reachable = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self)
+    
+    -- Quick lookup table to compare
+    local reachableMap = {}
+    for _, tile in ipairs(reachable) do
+        reachableMap[tile.q .. "," .. tile.r] = true
+    end
+
+    -- Now only keep special moves that are reachable
     local raw = self:specialMoves()
+    local filtered = {}
+    for _, tile in ipairs(raw) do
+        if reachableMap[tile.q .. "," .. tile.r] then
+            table.insert(filtered, tile)
+        end
+    end
 
-    -- Get reachable tiles based on the valid moves
-    local reachableTiles = getReachableTiles(self.q, self.r, raw, self:getMaxMoveCost(), self)
-
-    -- Return the filtered accessible tiles
-    return self:filterAccessibleTiles(reachableTiles)
+    return self:filterAccessibleTiles(filtered)
 end
 
 function Tank:getMaxMoveCost()
@@ -58,10 +68,6 @@ end
 
 function Tank:computeValidAttacks()
     local raw = self:specialMoves()
-    return self:filterAttackableTiles(raw)
-end
-
-function Tank:canAttack(q, r)
-    -- Placeholder for Update 5
-    return false
+    local attackable = getAttackableTilesRanged(self.q, self.r, self, raw)
+    return self:filterAttackableTiles(attackable)
 end

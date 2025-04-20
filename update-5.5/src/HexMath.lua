@@ -60,4 +60,15 @@ function HexMath.getLine(q1, r1, q2, r2)
     return results
 end
 
+function HexMath.hexDistance(q1, r1, q2, r2)
+    local a = HexMath.axialToCube(q1, r1)
+    local b = HexMath.axialToCube(q2, r2)
+
+    return math.max(
+        math.abs(a[1] - b[1]), -- dx
+        math.abs(a[2] - b[2]), -- dy
+        math.abs(a[3] - b[3])  -- dz
+    )
+end
+
 return HexMath

@@ -75,7 +75,7 @@ function love.load()
     end]]
     gStateMachine = StateMachine{
         ["player-turn"] = function() return PlayerTurnState() end,
-       -- ["enemy-turn"] = function() return EnemyTurnState() end
+        ["enemy-turn"] = function() return EnemyTurnState() end
     }
     gStateMachine:change("player-turn", {team = "blue"})
     

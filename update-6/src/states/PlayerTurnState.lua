@@ -23,6 +23,8 @@ function PlayerTurnState:update(dt)
         moveUnit(2, 0, 2, -1)
     elseif love.keyboard.wasPressed("n") then
         moveUnit(2, 0, 1, 0)
+    elseif love.keyboard.wasPressed("e") then
+        gStateMachine:change('enemy-turn', { team = 'red' })    
     elseif love.keyboard.wasPressed("tab") then
         -- cycle to the next unit on the same team
         self.unitIndex = self.unitIndex + 1

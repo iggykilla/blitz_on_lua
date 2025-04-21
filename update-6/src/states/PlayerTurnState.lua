@@ -4,7 +4,18 @@ function PlayerTurnState:init() end
 
 function PlayerTurnState:enter(params)
     self.team = params.team
-    -- maybe highlight that team's units
+    self.unitIndex = 1
+    self.teamUnits = {}
+
+    -- cache all units belonging to this team
+    for i, unit in ipairs(placedUnits) do
+        if unit.team == self.team then
+            table.insert(self.teamUnits, unit)
+        end
+    end
+
+    Helpers.selectUnit(self.teamUnits[self.unitIndex])
+
 end
 
 function PlayerTurnState:update(dt)
@@ -13,26 +24,13 @@ function PlayerTurnState:update(dt)
     elseif love.keyboard.wasPressed("n") then
         moveUnit(2, 0, 1, 0)
     elseif love.keyboard.wasPressed("tab") then
-        unitIndex = unitIndex + 1
-        if unitIndex > #placedUnits then
-            unitIndex = 1
-        end
-        selectedUnit = placedUnits[unitIndex]
-        selectedQ = selectedUnit.q
-        selectedR = selectedUnit.r
-
-        for _, tile in ipairs(tiles) do
-            tile.selected = false
-            tile.highlighted = false
-            tile.attackable = false
+        -- cycle to the next unit on the same team
+        self.unitIndex = self.unitIndex + 1
+        if self.unitIndex > #self.teamUnits then
+            self.unitIndex = 1
         end
 
-        local tile = getTile(selectedUnit.q, selectedUnit.r)
-        if tile then
-            tile.selected = true
-        end
-
-        Visuals.refreshHighlights(selectedUnit)
+        Helpers.selectUnit(self.teamUnits[self.unitIndex])
     end
 end
 

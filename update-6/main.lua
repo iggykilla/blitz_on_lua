@@ -58,9 +58,10 @@ function love.load()
     end
 
     unitIndex = 1
-    selectedUnit = placedUnits[unitIndex]
-    selectedQ = selectedUnit.q
-    selectedR = selectedUnit.r
+    if #placedUnits > 0 then
+        unitIndex = 1
+        Helpers.rawSelect(placedUnits[unitIndex])
+    end
 
 --[[
     -- tracks tile state 

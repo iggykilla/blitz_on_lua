@@ -18,3 +18,9 @@ function Helpers.selectUnit(unit)
 
     Visuals.refreshHighlights(unit)
 end
+
+function Helpers.rawSelect(unit)
+    selectedUnit = unit
+    selectedQ = unit.q
+    selectedR = unit.r
+end

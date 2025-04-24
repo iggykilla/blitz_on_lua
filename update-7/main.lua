@@ -33,17 +33,19 @@ function love.load()
     placeUnit(2, 2, "horse", "blue")
 
     -- blue infantry
-    local blue_infantry_placement = {{2,-1}, {2,0}, {0,0}, {-1,1}}
+    local blue_infantry_placement = {{2,-1}, {2,0}, {0,0}}
     for _, pos in ipairs(blue_infantry_placement) do
         placeUnit(pos[1], pos[2], "infantry", "blue")
     end
 
     -- red infantry
-    placeUnit(1, 1, "infantry", "red")
-    placeUnit(1, 0, "infantry", "red")
+    placeUnit(2, 1, "infantry", "red")
+    placeUnit(-1, 0, "infantry", "red")
     placeUnit(3, -1, "infantry", "red")
     placeUnit(0, -1, "infantry", "red")
     placeUnit(0, 2, "infantry", "red")
+    placeUnit(-2, 3, "infantry", "red")
+    
 
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)
@@ -64,7 +66,7 @@ function love.load()
         Helpers.rawSelect(placedUnits[unitIndex])
     end
 
---[[
+    --[[
     -- tracks tile state 
     debug.logAllTiles(tiles)
         
@@ -75,12 +77,20 @@ function love.load()
     else
         debug.log("Test getTile(4,0): tile not found")
     end]]
+
     gStateMachine = StateMachine{
         ["player-turn"] = function() return PlayerTurnState() end,
         ["enemy-turn"] = function() return EnemyTurnState() end
     }
     gStateMachine:change("player-turn", {team = "blue"})
     
+
+    --[[ Test.lua logic
+    local fromTile = getTile(0,1)
+    local toTile = getTile(2, 1)
+
+    testCanAttack(fromTile, toTile)]]
+
     love.keyboard.keysPressed = {}
 end
 
@@ -148,3 +158,7 @@ end
 function love.keyboard.wasPressed(key)
     return love.keyboard.keysPressed[key]
 end
+
+
+
+

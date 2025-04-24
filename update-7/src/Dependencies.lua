@@ -48,3 +48,6 @@ require 'src/Helpers'
 -- each frame, to avoid bulky code in main.lua
 require 'src/states/PlayerTurnState'
 require 'src/states/EnemyTurnState'
+
+-- For testing and debugging
+require 'src/Test'

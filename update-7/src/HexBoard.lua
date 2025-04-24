@@ -43,24 +43,27 @@ function generateHexGrid(offsetX, offsetY)
         for r = r1, r2 do
             local x, y = hexToPixel(q, r)
             local tile = {
-                q = q,                                  -- q coordinate for the hex tile
-                r = r,                                  -- r coordinate for the hex tile
-                x = x + offsetX,                        -- x position for rendering
-                y = y + offsetY,                        -- y position for rendering
-                unit = nil,                             -- The unit occupying the tile (if any)
-                team = nil,                             -- The team of the unit occupying the tile (if any)
-                occupied = false,                       -- Whether the tile is occupied by a unit
-                selected = false,                       -- Whether the tile is selected
-                highlightType = nil,                     -- Whether the tile is highlightType
-                flashTimer = 0,                         -- Timer for flashing the tile (if needed)
-                moveCost = 1,                           -- The movement cost of the tile (e.g., 1 for normal terrain)
-                attackable = false                      -- New flag to mark the tile as attackable (if occupied by enemy)
+                q = q,
+                r = r,
+                x = x + offsetX,
+                y = y + offsetY,
+                unit = nil,
+                team = nil,
+                occupied = false,
+                selected = false,
+                highlightType = nil,
+                flashTimer = 0,
+                moveCost = 1,
+                attackable = false
             }
-            
-        table.insert(tiles, tile)
 
-        -- store by coordinate key
-        tilesByCoordinates[q .. "," .. r] = tile
+            -- Log the key being used to store the tile
+         --   debug.log(string.format("[generateHexGrid] Storing tile at (%d,%d) with key: %s", q, r, q .. "," .. r))
+
+            table.insert(tiles, tile)
+
+            -- store by coordinate key
+            tilesByCoordinates[q .. "," .. r] = tile
         end
     end
 
@@ -68,7 +71,17 @@ function generateHexGrid(offsetX, offsetY)
 end
 
 function getTile(q, r)
-    return tilesByCoordinates[q .. "," .. r] or nil
+    local key = q .. "," .. r
+   -- debug.log(string.format("[getTile] Looking for tile with key: %s", key))
+    local tile = tilesByCoordinates[key]
+    
+    if not tile then
+   --     debug.log(string.format("[getTile] Tile with key %s not found", key))
+    else
+   --     debug.log(string.format("[getTile] Tile found: q = %d, r = %d", tile.q, tile.r))
+    end
+
+    return tile
 end
 
 function getNeighbors(q, r, radius, exact, allowedDirections)
@@ -136,6 +149,13 @@ function moveUnit(q1, r1, q2, r2)
     if not to or to.occupied then return false end
     if not from.unit:canMoveTo(q2, r2) then return false end
 
+    debug.log(string.format("[moveUnit] from (%d,%d) to (%d,%d)", q1, r1, q2, r2))
+
+    if not from then debug.log("[moveUnit] ❌ 'from' tile not found") end
+    if not from.unit then debug.log("[moveUnit] ❌ no unit on 'from' tile") end
+    if not to then debug.log("[moveUnit] ❌ 'to' tile not found") end
+    if to and to.occupied then debug.log("[moveUnit] ❌ 'to' tile is occupied") end
+
     -- Move unit
     to.unit = from.unit
     to.unit:setPosition(q2, r2)
@@ -156,10 +176,10 @@ end
 function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
     local start = getTile(startQ, startR)
     if not start then
-        debug.log("[getReachableTiles] ❌ Invalid start tile")
+    --    debug.log("[getReachableTiles] ❌ Invalid start tile")
         return {}
     end
-    debug.log(string.format("[getReachableTiles] 🚀 Start at (%d,%d)", startQ, startR))
+   -- debug.log(string.format("[getReachableTiles] 🚀 Start at (%d,%d)", startQ, startR))
 
     local reachable = {}
     local visited = {}
@@ -172,7 +192,7 @@ function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
         local key = tile.q .. "," .. tile.r
 
         if not visited[key] or cost < visited[key] then
-            debug.log(string.format("[getReachableTiles] ✅ Visiting (%d,%d) with cost %d", tile.q, tile.r, cost))
+         --   debug.log(string.format("[getReachableTiles] ✅ Visiting (%d,%d) with cost %d", tile.q, tile.r, cost))
             visited[key] = cost
             tile.costSoFar = cost
             reachable[key] = tile
@@ -181,17 +201,17 @@ function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
                 local moveCost = cost + unit:modifyMoveCost(neighbor)
                 if canMoveThrough(neighbor, unit) then
                     if moveCost <= maxCost then
-                        debug.log(string.format("[getReachableTiles] → ✅ Enqueue (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
+                     --   debug.log(string.format("[getReachableTiles] → ✅ Enqueue (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
                         table.insert(queue, {tile = neighbor, cost = moveCost})
                     else
-                        debug.log(string.format("[getReachableTiles] → ❌ Too expensive (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
+                    --    debug.log(string.format("[getReachableTiles] → ❌ Too expensive (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
                     end
                 elseif includeBlocked and not reachable[neighbor.q .. "," .. neighbor.r] then
-                    debug.log(string.format("[getReachableTiles] 🔒 Including blocked tile (%d,%d)", neighbor.q, neighbor.r))
+                  --  debug.log(string.format("[getReachableTiles] 🔒 Including blocked tile (%d,%d)", neighbor.q, neighbor.r))
                     reachable[neighbor.q .. "," .. neighbor.r] = neighbor
                     neighbor.blocked = true -- Optional flag you can use in filtering
                 else
-                    debug.log(string.format("[getReachableTiles] → ❌ Blocked (%d,%d)", neighbor.q, neighbor.r))
+                   -- debug.log(string.format("[getReachableTiles] → ❌ Blocked (%d,%d)", neighbor.q, neighbor.r))
                 end
             end
         end
@@ -204,12 +224,12 @@ function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
         table.insert(result, tile)
     end
 
-    debug.log(string.format("[getReachableTiles] 🟢 Found %d reachable+blocked tiles", #result))
+    -- debug.log(string.format("[getReachableTiles] 🟢 Found %d reachable+blocked tiles", #result))
     local coords = {}
     for _, tile in ipairs(result) do
         table.insert(coords, string.format("(%d,%d)", tile.q, tile.r))
     end
-    debug.log("[getReachableTiles] Tiles: " .. table.concat(coords, ", "))
+    -- debug.log("[getReachableTiles] Tiles: " .. table.concat(coords, ", "))
 
     return result
 end
@@ -221,40 +241,51 @@ function clearHighlights()
     end
 end
 
-function getAttackableTilesRanged(startQ, startR, unit, validTiles)
+function getAttackableTilesRanged(startQ, startR, unit)
     local start = getTile(startQ, startR)
     if not start then 
         return {}
     end
 
     local attackable = {}
-    local cost = unit:attackCost()
-    local maxCost = unit:maxAttackCost()
-    local maxRange = unit:maxAttackRange()
+    local maxCost   = unit:maxAttackCost()
+    local maxRange  = unit:maxAttackRange()
 
-    local neighbors = validTiles or getNeighbors(startQ, startR, maxRange)
+    local neighbors = getNeighbors(startQ, startR, maxRange)
 
     for _, neighbor in ipairs(neighbors) do
-        -- Must be enemy unit
-        if not neighbor.unit or neighbor.unit.team == unit.team then goto continue end
+        local nq, nr = neighbor.q, neighbor.r
 
-        -- Optional cost filtering (in case we add variable cost per tile later)
-        if cost > maxCost then goto continue end
+        if not neighbor.unit then
+            goto continue
+        end
 
-        local distance = HexMath.hexDistance(startQ, startR, neighbor.q, neighbor.r)
-        if distance <= maxRange and unit:canAttack(neighbor.q, neighbor.r) then
-            attackable[neighbor.q .. "," .. neighbor.r] = neighbor
-    --        debug.log(string.format("[getAttackableTilesRanged] ✅ (%d,%d) enemy in range %d", neighbor.q, neighbor.r, distance))
+        if neighbor.unit.team == unit.team then
+            goto continue
+        end
+
+        local distance = HexMath.hexDistance(startQ, startR, nq, nr)
+        local cost     = unit:attackCost(distance)
+        if cost > maxCost then
+            goto continue
+        end
+
+        if distance <= maxRange and unit:canAttack(nq, nr) then
+            attackable[nq .. "," .. nr] = neighbor
         end
 
         ::continue::
     end
 
-    -- Return flat list
     local result = {}
     for _, tile in pairs(attackable) do
         table.insert(result, tile)
     end
+
+    --[[
+    for _, tile in ipairs(result) do
+        debug.log(string.format("Attackable tile at (%d, %d)", tile.q, tile.r))
+    end]]
 
     return result
 end
@@ -284,16 +315,19 @@ function canAttackThrough(unit, tile)
 end
 
 function hasLineOfSight(unit, fromTile, toTile)
-    local line = HexMath.getLine(fromTile.q, fromTile.r, toTile.q, toTile.r)
+  --  debug.log("🧠 hasLineOfSight called from " .. fromTile.q .. "," .. fromTile.r .. " to " .. toTile.q .. "," .. toTile.r)
+
+    local line = HexMath.getLine(fromTile.q, fromTile.r, toTile.q, toTile.r, false, false)
 
     for _, tile in ipairs(line) do
-        if not canAttackThrough(unit, tile) then
-            debug.log(string.format("[LoS] Blocked at (%d,%d)", tile.q, tile.r))
-            return false
+        -- Block both friendly and enemy units for LoS
+        if tile.unit then
+        --    debug.log(string.format("[LoS] Tile (%d,%d) has unit %s (%s)", tile.q, tile.r, tile.unit.type, tile.unit.team))
+            return false  -- Block LoS if any unit is in the path
         end
     end
 
-    return true
+    return true  -- Clear LoS
 end
 
 function getAttackableTilesMelee(startQ, startR, unit)
@@ -302,19 +336,19 @@ function getAttackableTilesMelee(startQ, startR, unit)
     local attackCost = unit:attackCost()
     local maxCost = unit:maxAttackCost()
 
-    debug.log(string.format("[getAttackableTilesMelee] 📦 Reachable tiles: %d, Attack cost: %d", #reachable, attackCost))
+    -- debug.log(string.format("[getAttackableTilesMelee] 📦 Reachable tiles: %d, Attack cost: %d", #reachable, attackCost))
     local coords = {}
     for _, tile in ipairs(reachable) do
         table.insert(coords, string.format("(%d,%d)", tile.q, tile.r))
     end
-    debug.log("[getAttackableTilesMelee] Reachable tiles: " .. table.concat(coords, ", "))
+    -- debug.log("[getAttackableTilesMelee] Reachable tiles: " .. table.concat(coords, ", "))
 
     for _, tile in ipairs(reachable) do
         if tile.unit and tile.unit.team ~= unit.team then
             local key = tile.q .. "," .. tile.r
             if not attackable[key] and attackCost <= maxCost then
                 attackable[key] = tile
-                debug.log(string.format("[getAttackableTilesMelee] ✅ (%d,%d) reachable enemy", tile.q, tile.r))
+            --    debug.log(string.format("[getAttackableTilesMelee] ✅ (%d,%d) reachable enemy", tile.q, tile.r))
             end
         end
     end

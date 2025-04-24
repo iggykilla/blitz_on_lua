@@ -22,7 +22,15 @@ function PlayerTurnState:update(dt)
     if love.keyboard.wasPressed("m") then
         -- Example: try to move 1 tile northeast
         local q, r = selectedQ, selectedR
-        local dq, dr = 0, -1
+        local dq, dr = -1, 0
+        if moveUnit(q, r, q + dq, r + dr) then
+            gStateMachine:change('enemy-turn', { team = 'red' })
+        end
+
+    elseif love.keyboard.wasPressed("n") then
+        -- Example: try to move 1 tile northeast
+        local q, r = selectedQ, selectedR
+        local dq, dr = -2, 0
         if moveUnit(q, r, q + dq, r + dr) then
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
@@ -38,7 +46,7 @@ function PlayerTurnState:update(dt)
     elseif love.keyboard.wasPressed("r") then
         -- Example: ranged attack east
         local q, r = selectedQ, selectedR
-        local dq, dr = 1, 0
+        local dq, dr = 2, 0
         if Helpers.resolveAttack(selectedUnit, q + dq, r + dr) then
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
@@ -55,7 +63,6 @@ function PlayerTurnState:update(dt)
         gStateMachine:change('enemy-turn', { team = 'red' })
     end
 end
-
 
 function PlayerTurnState:render()
     love.graphics.print(self.team .. "'s Turn", 10, 10)

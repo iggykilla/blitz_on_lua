@@ -28,37 +28,45 @@ function EnemyTurnState:update(dt)
     -- Try units one by one until one acts or all fail
     while self.unitIndex <= #self.teamUnits do
         local unit = self.teamUnits[self.unitIndex]
-
         if unit then
             Helpers.selectUnit(unit)
 
-            -- 1. Try melee attack
-            local meleeTargets = getAttackableTilesMelee(unit.q, unit.r, unit)
-            if #meleeTargets > 0 then
-                local target = meleeTargets[1]
-                if Helpers.resolveAttack(unit, target.q, target.r) then
-                    gStateMachine:change('player-turn', { team = 'blue' })
-                    return
-                end
-            end
+            -- 1) Gather all *valid* attacks (both melee & ranged)
+            local validAttacks = unit:computeValidAttacks()
 
-            -- 2. Try ranged attack (if applicable)
-            if unit.isRanged then
-                local rangedTargets = getAttackableTilesRanged(unit.q, unit.r, unit)
-                if #rangedTargets > 0 then
-                    local target = rangedTargets[1]
-                    if Helpers.resolveAttack(unit, target.q, target.r) then
+            if #validAttacks > 0 then
+                -- separate into melee (dist==1) and ranged (dist>1)
+                local meleeTargets, rangedTargets = {}, {}
+                for _, t in ipairs(validAttacks) do
+                    local d = HexMath.hexDistance(unit.q, unit.r, t.q, t.r)
+                    if d == 1 then
+                        table.insert(meleeTargets, t)
+                    elseif unit.isRanged and d > 1 then
+                        table.insert(rangedTargets, t)
+                    end
+                end
+
+                -- 2) Prefer melee, then ranged
+                local choice = nil
+                if #meleeTargets > 0 then
+                    choice = meleeTargets[1]
+                elseif #rangedTargets > 0 then
+                    choice = rangedTargets[1]
+                end
+
+                if choice then
+                    if Helpers.resolveAttack(unit, choice.q, choice.r) then
                         gStateMachine:change('player-turn', { team = 'blue' })
                         return
                     end
                 end
             end
 
-            -- 3. Try move
+            -- 3) No attack possible → try moving
             local validMoves = unit:getValidMoves()
             if #validMoves > 0 then
-                local tile = validMoves[1]
-                if moveUnit(unit.q, unit.r, tile.q, tile.r) then
+                local moveTo = validMoves[1]
+                if moveUnit(unit.q, unit.r, moveTo.q, moveTo.r) then
                     gStateMachine:change('player-turn', { team = 'blue' })
                     return
                 end
@@ -69,7 +77,7 @@ function EnemyTurnState:update(dt)
         self.unitIndex = self.unitIndex + 1
     end
 
-    -- All units exhausted or no valid actions → end turn
+    -- All units exhausted / no actions left → end turn
     gStateMachine:change('player-turn', { team = 'blue' })
 end
 

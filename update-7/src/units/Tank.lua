@@ -42,7 +42,11 @@ function Tank:specialMoves()
 end
 
 function Tank:computeValidMoves()
-    local reachable = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self)
+    local reachable = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self, true)
+    debug.log("[Tank] getReachableTiles returned:")
+    for _, tile in ipairs(reachable) do
+        debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
+    end
     
     -- Quick lookup table to compare
     local reachableMap = {}
@@ -66,13 +70,32 @@ function Tank:getMaxMoveCost()
     return 2
 end
 
+function Tank:attackCost(distance)
+    return distance or 1 -- 1 for melee, 2 for ranged, or customize
+end
+
+function Tank:maxAttackRange() 
+    return 2
+end
+
+function Tank:maxAttackCost()
+    return 2
+end
+
 function Tank:computeValidAttacks()
-    local raw = self:specialMoves()
-    local attackable = getAttackableTilesRanged(self.q, self.r, self, raw)
+    local attackable = getAttackableTilesRanged(self.q, self.r, self)
     return self:filterAttackableTiles(attackable)
 end
 
 function Tank:shouldAdvanceAfterAttack(targetQ, targetR)
     local distance = HexMath.hexDistance(self.q, self.r, targetQ, targetR)
-    return distance > 1 -- advance only if using ranged blast
+    local advance  = (distance > 1)
+    debug.log(string.format( 
+      "[shouldAdvance] dist=%d → advance=%s",
+      distance, tostring(advance)
+    ))
+    return advance
 end
+
+
+

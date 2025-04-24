@@ -47,8 +47,14 @@ function Helpers.removeUnit(unit)
 end
 
 function Helpers.resolveAttack(attacker, targetQ, targetR)
+    debug.log(string.format(
+    "[resolveAttack] ▶️ ENTRY attacker=%s target=(%d,%d)",
+    attacker.type or tostring(attacker),
+    targetQ, targetR
+    ))
+    
+    -- 1) Validate that the target is in range/attackable
     local attackableTiles = attacker:computeValidAttacks()
-
     local validTarget = false
     for _, tile in ipairs(attackableTiles) do
         if tile.q == targetQ and tile.r == targetR then
@@ -56,31 +62,53 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
             break
         end
     end
-
     if not validTarget then
         debug.log("[resolveAttack] ❌ Target not attackable")
         return false
     end
 
+    -- 2) Ensure there’s actually a unit to hit
     local targetTile = getTile(targetQ, targetR)
-    if not targetTile or not targetTile.unit then return false end
-
+    if not targetTile or not targetTile.unit then
+        debug.log("[resolveAttack] ❌ No unit at target")
+        return false
+    end
     local target = targetTile.unit
-    target.hp = target.hp - (attacker.attack or 1)
 
+    -- 3) Deal damage
+    local dmg = attacker.attack or 1
+    target.hp = target.hp - dmg
+
+    -- 4) Handle death vs. survival
     if target.hp <= 0 then
         Helpers.removeUnit(target)
+        debug.log(string.format(
+            "[resolveAttack] 💥 %s (%s) destroyed %s at (%d,%d)",
+            attacker.type, attacker.team, target.type, targetQ, targetR
+        ))
 
         if attacker:shouldAdvanceAfterAttack(targetQ, targetR) then
-            moveUnit(attacker.q, attacker.r, targetQ, targetR)
+            if attacker.canMoveTo and attacker:canMoveTo(targetQ, targetR) then
+                moveUnit(attacker.q, attacker.r, targetQ, targetR)
+                debug.log(string.format(
+                    "[resolveAttack] 🚶 %s advanced to (%d,%d)",
+                    attacker.type, targetQ, targetR
+                ))
+            else
+                debug.log(string.format(
+                    "[resolveAttack] ❌ %s cannot advance to (%d,%d)",
+                    attacker.type, targetQ, targetR
+                ))
+            end
         end
-
-        debug.log(string.format("[resolveAttack] 💥 %s (%s) destroyed %s at (%d,%d)",
-            attacker.type, attacker.team, target.type, targetQ, targetR))
     else
-        debug.log(string.format("[resolveAttack] ⚔️ %s survived with %d HP", target.type, target.hp))
+        debug.log(string.format(
+            "[resolveAttack] ⚔️ %s survived with %d HP",
+            target.type, target.hp
+        ))
     end
 
+    debug.log(string.format("[resolveAttack] ⏹ EXIT target=(%d,%d)", targetQ, targetR))
     return true
 end
 
@@ -89,5 +117,6 @@ function Helpers.clearTile(q, r)
     if tile then
         tile.unit = nil
         tile.occupied = false
+        debug.log(string.format("[clearTile] Cleared tile at (%d,%d)", q, r))
     end
 end

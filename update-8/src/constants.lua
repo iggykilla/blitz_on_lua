@@ -43,6 +43,11 @@ VIRTUAL_HEIGHT = 360
 -- tile radius (changed to 20 from 40 to better fit the screen)
 HEX_RADIUS = 20
 
+SQRT3 = math.sqrt(3)
+
+OFFSET_X = VIRTUAL_WIDTH / 2
+OFFSET_Y = VIRTUAL_HEIGHT / 2
+
 -- Movement Ranges
 INFANTRY_MOVE_RADIUS    = 1
 HORSE_JUMP_RADIUS       = 2

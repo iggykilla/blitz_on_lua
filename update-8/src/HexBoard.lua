@@ -28,11 +28,11 @@ end
 
 function hexToPixel(q, r)
     local x = HEX_RADIUS * 1.5 * r
-    local y = HEX_RADIUS * math.sqrt(3) * (q + r / 2)
+    local y = HEX_RADIUS * SQRT3 * (q + r / 2)
     return x, y
 end
 
-function generateHexGrid(offsetX, offsetY)
+function generateHexGrid(OFFSET_X, OFFSET_Y)
     local tiles = {}
     local size = 4
 
@@ -45,8 +45,8 @@ function generateHexGrid(offsetX, offsetY)
             local tile = {
                 q = q,
                 r = r,
-                x = x + offsetX,
-                y = y + offsetY,
+                x = x + OFFSET_X,
+                y = y + OFFSET_Y,
                 unit = nil,
                 team = nil,
                 occupied = false,
@@ -145,7 +145,7 @@ function placeUnit(q, r, unitType, team)
     unit.r = r
     tile.unit = unit
     tile.occupied = true
-    debug.log(string.format("✅ Placed %s (%s) at (%d,%d)", unit:getName(), team, q, r))
+  --  debug.log(string.format("✅ Placed %s (%s) at (%d,%d)", unit:getName(), team, q, r))
 end
 
 function moveUnit(q1, r1, q2, r2)
@@ -368,3 +368,16 @@ function getAttackableTilesMelee(startQ, startR, unit)
 
     return result
 end
+
+function selectUnitAt(q, r)
+    local tile = getTile(q, r)
+    if tile and tile.unit then
+        Helpers.selectUnit(tile.unit)
+        selectedUnit = tile.unit
+    else
+        -- clear selection
+        selectedUnit = nil
+    end
+end
+
+

@@ -42,7 +42,7 @@ function BoardSetup.standard_positions(team)
 
     elseif color == "red" then
         for _, group in ipairs({
-            spawn("infantry", {{-4,3}, {-3,2}, {-3,1}, {-2,0}, {-2,-1}, {-1,-2}, {-1,-3}}, color),
+            spawn("infantry", {{-4,3}, {-3,2}, {-3,1}, {-2,0}, {-2,-1}, {-1,-2}, {-1,-3}, {1,0}}, color),
             spawn("tank",     {{-4,1}, {-3,-1}}, color),
             spawn("horse",    {{-4,2}, {-2,-2}}, color),
             spawn("commander",{{-3,0}}, color),

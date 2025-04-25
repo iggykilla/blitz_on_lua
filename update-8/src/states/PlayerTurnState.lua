@@ -18,13 +18,13 @@ function PlayerTurnState:enter(params)
     local centerTile = getTile(2, 0)
     if centerTile and centerTile.unit and centerTile.unit.team == self.team then
         Helpers.selectUnit(centerTile.unit)
-        debug.log("🟢 Selecting unit: " .. centerTile.unit:getName() .. " at (2,0)")
+    --    debug.log("🟢 Selecting unit: " .. centerTile.unit:getName() .. " at (2,0)")
     else
         -- Fallback: pick first alive unit
         for _, unit in ipairs(self.teamUnits) do
             if not unit.dead then
                 Helpers.selectUnit(unit)
-                debug.log("🟢 Fallback select: " .. unit:getName())
+          --      debug.log("🟢 Fallback select: " .. unit:getName())
                 break
             end
         end

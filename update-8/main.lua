@@ -18,11 +18,8 @@ function love.load()
         canvas = false         -- false = better for sharp lines
     })
 
-    local offsetX = VIRTUAL_WIDTH / 2
-    local offsetY = VIRTUAL_HEIGHT / 2
-
     tilesByCoordinates = {} -- define this first so tiles = generateHexGrid can populate
-    tiles = generateHexGrid(offsetX, offsetY) -- ✅ store your tile data
+    tiles = generateHexGrid(OFFSET_X, OFFSET_Y) -- ✅ store your tile data
 
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)
@@ -30,10 +27,10 @@ function love.load()
     -- Setup Logic
     BoardSetup.setup()
     placedUnits = Helpers.collectPlacedUnits()
-    debug.log("📦 Collected " .. #placedUnits .. " placed units")
+  --  debug.log("📦 Collected " .. #placedUnits .. " placed units")
 
     for i, unit in ipairs(placedUnits) do
-        debug.log(string.format("  [%d] %s (%s) at %d,%d", i, unit:getName(), unit.team, unit.q, unit.r))
+     --   debug.log(string.format("  [%d] %s (%s) at %d,%d", i, unit:getName(), unit.team, unit.q, unit.r))
     end
 
     -- Get all placed units
@@ -42,11 +39,11 @@ function love.load()
     -- Select the unit at (2, 0) (center infantry)
     local centerUnit = getTile(2, 0).unit  -- Get the tile at (2, 0) and select its unit
     if centerUnit then
-        debug.log("call here 1) Selecting unit at (2,0)")
+     --   debug.log("call here 1) Selecting unit at (2,0)")
         Helpers.selectUnit(centerUnit)  -- Select that unit
-        debug.log("🟢 Selecting unit: " .. centerUnit:getName() .. " at (2,0)")
+     --   debug.log("🟢 Selecting unit: " .. centerUnit:getName() .. " at (2,0)")
     else
-        debug.log("⚠️ No unit at (2,0) to select")
+     --   debug.log("⚠️ No unit at (2,0) to select")
     end
 
     --[[
@@ -75,12 +72,22 @@ function love.load()
     testCanAttack(fromTile, toTile)]]
 
     love.keyboard.keysPressed = {}
+    love.mouse.keysPressed = {}
 end
 
 function love.update(dt)
     -- global input handling
     if love.keyboard.wasPressed("escape") then
         love.event.quit()
+    end
+
+    if love.mouse.wasPressed(1) then  -- Left-click
+
+        local q, r = HexMath.screenToHex(love.mouse.getX(), love.mouse.getY())
+        debug.log(string.format("   → hex coords: (q=%d, r=%d)", q, r))
+
+        -- 4) attempt selection
+        selectUnitAt(q, r)
     end
 
     gStateMachine:update(dt)
@@ -105,6 +112,7 @@ function love.update(dt)
     end
     -- reset keys pressed
     love.keyboard.keysPressed = {}
+    love.mouse.keysPressed = {}
 end
 
 function love.draw()
@@ -142,6 +150,11 @@ function love.keyboard.wasPressed(key)
     return love.keyboard.keysPressed[key]
 end
 
+function love.mousepressed(x, y, button, istouch, presses)
+    -- Store the mouse button press in love.mouse.keysPressed
+    love.mouse.keysPressed[button] = true
+end
 
-
-
+function love.mouse.wasPressed(button)
+    return love.mouse.keysPressed[button] == true
+end

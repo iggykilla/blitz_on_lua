@@ -110,4 +110,16 @@ function HexMath.getLine(q1, r1, q2, r2, includeStart, includeEnd)
     return results
 end
 
+function HexMath.screenToHex(x, y)
+    local gx, gy = push:toGame(x, y)
+    local dx, dy = gx - OFFSET_X, gy - OFFSET_Y
+
+    local rf = dx / (HEX_RADIUS * 1.5)
+    local qf = (dy / (SQRT3 * HEX_RADIUS)) - (rf * 0.5)
+    local sf = -qf - rf
+
+    local roundedCube = HexMath.cubeRound({ qf, sf, rf })
+    return HexMath.cubeToAxial(roundedCube)
+end
+
 return HexMath

@@ -19,7 +19,7 @@ function love.load()
     })
 
     tilesByCoordinates = {} -- define this first so tiles = generateHexGrid can populate
-    tiles = generateHexGrid(OFFSET_X, OFFSET_Y) -- ✅ store your tile data
+    tiles = HexBoard:generateHexGrid(OFFSET_X, OFFSET_Y) -- ✅ store your tile data
 
     smallFont = love.graphics.newFont(8)
     mediumFont = love.graphics.newFont(20)
@@ -37,7 +37,7 @@ function love.load()
     removedUnits = {}
     
     -- Select the unit at (2, 0) (center infantry)
-    local centerUnit = getTile(2, 0).unit  -- Get the tile at (2, 0) and select its unit
+    local centerUnit = HexBoard:getTile(2, 0).unit  -- Get the tile at (2, 0) and select its unit
     if centerUnit then
      --   debug.log("call here 1) Selecting unit at (2,0)")
         Helpers.selectUnit(centerUnit)  -- Select that unit
@@ -82,12 +82,13 @@ function love.update(dt)
     end
 
     if love.mouse.wasPressed(1) then  -- Left-click
-
-        local q, r = HexMath.screenToHex(love.mouse.getX(), love.mouse.getY())
+        local q, r = HexMath.screenToHex(
+            love.mouse.getX(), love.mouse.getY()
+        )
         debug.log(string.format("   → hex coords: (q=%d, r=%d)", q, r))
-
-        -- 4) attempt selection
-        selectUnitAt(q, r)
+    
+        -- centralized click handling
+        Helpers.handleMouseClick(q, r)
     end
 
     gStateMachine:update(dt)

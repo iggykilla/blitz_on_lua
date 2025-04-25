@@ -86,40 +86,43 @@ function testGetTile(tile)
     end
 end
 
-    --[[ Test.lua logic
-    local fromTile = getTile(0,1)
-    local toTile = getTile(0,-1)
-    local tile = getTile(0,0)
+function testHandleMouseClick(q, r)
+    -- 1) Nothing selected yet? Try to pick up a unit
+    if not selectedUnit then
+        selectUnitAt(q, r)
+        if selectedUnit then
+            return "selected"
+        else
+            return nil
+        end
+    end
 
-    testGetTile(tile)
-    testGetLine(fromTile, toTile)
-    testLineOfSight(fromTile, toTile)
-    testCanAttack(fromTile, toTile)
+    local u = selectedUnit
+    local startQ, startR = u.q, u.r
 
-    tile = getTile(1,0)
-    fromTile = getTile(0,1)
-    toTile =  getTile(2, -1)
+    -- 2) Can we move there?
+    for _, tile in ipairs(u:getValidMoves()) do
+        if tile.q == q and tile.r == r then
+            HexBoard:moveUnit(startQ, startR, q, r)
+            -- deselect after move:
+            Helpers.selectUnit(nil)
+            return "moved"
+        end
+    end
 
-    testGetTile(tile)
-    testGetLine(fromTile, toTile)
-    testLineOfSight(fromTile, toTile)
-    testCanAttack(fromTile, toTile)
+    -- 3) Can we attack there?
+    for _, tile in ipairs(u:getValidAttacks()) do
+        if tile.q == q and tile.r == r then
+            Helpers.resolveAttack(u, q, r)
+            -- deselect after attack:
+            Helpers.selectUnit(nil)
+            return "attacked"
+        end
+    end
 
-    tile = getTile(1,1)
-    fromTile = getTile(0,1)
-    toTile =  getTile(2, 1)
-
-    testGetTile(tile)
-    testGetLine(fromTile, toTile)
-    testLineOfSight(fromTile, toTile)
-    testCanAttack(fromTile, toTile)
-
-    tile = getTile(-1,1)
-    fromTile = getTile(0,1)
-    toTile =  getTile(-2, 3)
-
-    testGetTile(tile)
-    testGetLine(fromTile, toTile)
-    testLineOfSight(fromTile, toTile)
-    testCanAttack(fromTile, toTile)
-    ]]
+    -- 4) Nothing valid here
+    debug.log(string.format(
+      "Invalid click at (%d,%d): not a move or attack target", q, r
+    ))
+    return nil
+end

@@ -4,7 +4,7 @@ local BoardSetup = {}
 
 local function placeUnits(units)
     for _, u in ipairs(units) do
-        placeUnit(u.q, u.r, u.unitType, u.color)
+        HexBoard:placeUnit(u.q, u.r, u.unitType, u.color)
     end
 end
 

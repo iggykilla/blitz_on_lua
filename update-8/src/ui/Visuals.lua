@@ -1,7 +1,7 @@
 local Visuals = {}
 
 function Visuals.drawTile(tile, smallFont, mediumFont)
-    local hexPoints = getHexPoints(tile.x, tile.y, HEX_RADIUS)
+    local hexPoints = HexBoard:getHexPoints(tile.x, tile.y, HEX_RADIUS)
 
     -- works for functions in Test.lua
     if tile.debugColor then
@@ -50,27 +50,31 @@ function Visuals.drawTile(tile, smallFont, mediumFont)
 end
 
 function Visuals.highlightTiles(unit, mode)
-    local tiles = {}
-    if mode == "move" then
-        tiles = unit:getValidMoves()
-    --    debug.log(string.format("[highlightTiles] Highlighting %d move tiles for %s (%s)", #tiles, unit.type, unit.team))
-        for _, tile in ipairs(tiles) do
-            tile.highlighted = true
-    --        debug.log(string.format("  → Move tile: (%d, %d)", tile.q, tile.r))
-        end
+    if not unit or not mode then return end
 
-    elseif mode == "attack" then
-        tiles = unit:getValidAttacks()
-     --   debug.log(string.format("[highlightTiles] Highlighting %d attack tiles for %s (%s)", #tiles, unit.type, unit.team))
-        for _, tile in ipairs(tiles) do
-            tile.attackable = true
-        --    debug.log(string.format("  → Attack tile: (%d, %d)", tile.q, tile.r))
+    local tilesToMark = (mode == "move")
+        and unit:getValidMoves()
+        or (mode == "attack" and unit:getValidAttacks())
+        or {}
+
+    for _, tile in ipairs(tilesToMark) do
+        if mode == "move" then
+            tile.highlighted = true
+        else  -- mode == "attack"
+            tile.attackable  = true
         end
     end
 end
 
+function Visuals.clearHighlights()
+    for _, tile in ipairs(tiles) do
+        tile.highlighted = false
+        tile.attackable = false
+    end
+end
+
 function Visuals.refreshHighlights(unit)
-    clearHighlights()
+    Visuals.clearHighlights()
     Visuals.highlightTiles(unit, "move")
     Visuals.highlightTiles(unit, "attack")
 end

@@ -21,13 +21,13 @@ end
 
 function Tank:specialMoves()
     -- Get neighbors within the short radius
-    local short = getNeighbors(self.q, self.r, TANK_SHORT_RADIUS)
+    local short = HexBoard:getNeighbors(self.q, self.r, TANK_SHORT_RADIUS)
 
     -- Define custom movement directions for long radius
     local directions = getTankRangedDirections()
 
     -- Get neighbors within the long radius with specific directions
-    local long = getNeighbors(self.q, self.r, TANK_LONG_RADIUS, true, directions)
+    local long = HexBoard:getNeighbors(self.q, self.r, TANK_LONG_RADIUS, true, directions)
 
     -- Combine into a new result table
     local result = {}
@@ -42,7 +42,7 @@ function Tank:specialMoves()
 end
 
 function Tank:computeValidMoves()
-    local reachable = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self, true)
+    local reachable = HexBoard:getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self, true)
     debug.log("[Tank] getReachableTiles returned:")
     for _, tile in ipairs(reachable) do
         debug.log(string.format("  - (%d,%d)", tile.q, tile.r))
@@ -83,7 +83,7 @@ function Tank:maxAttackCost()
 end
 
 function Tank:computeValidAttacks()
-    local attackable = getAttackableTilesRanged(self.q, self.r, self)
+    local attackable = HexBoard:getAttackableTilesRanged(self.q, self.r, self)
     return self:filterAttackableTiles(attackable)
 end
 

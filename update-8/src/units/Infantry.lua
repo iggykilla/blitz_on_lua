@@ -22,12 +22,12 @@ end
 
 function Infantry:computeValidMoves()
     local forwardDirs = getForwardDirs(self.team)
-    local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
+    local raw = HexBoard:getNeighbors(self.q, self.r, radius, true, forwardDirs)
     return self:filterAccessibleTiles(raw)
 end
 
 function Infantry:computeValidAttacks()
     local forwardDirs = getForwardDirs(self.team)
-    local raw = getNeighbors(self.q, self.r, radius, true, forwardDirs)
+    local raw = HexBoard:getNeighbors(self.q, self.r, radius, true, forwardDirs)
     return self:filterAttackableTiles(raw)
 end

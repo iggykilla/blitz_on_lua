@@ -15,7 +15,7 @@ function PlayerTurnState:enter(params)
     end
 
     -- Try selecting the default unit at (2,0)
-    local centerTile = getTile(2, 0)
+    local centerTile = HexBoard:getTile(2, 0)
     if centerTile and centerTile.unit and centerTile.unit.team == self.team then
         Helpers.selectUnit(centerTile.unit)
     --    debug.log("🟢 Selecting unit: " .. centerTile.unit:getName() .. " at (2,0)")
@@ -36,7 +36,7 @@ function PlayerTurnState:update(dt)
         -- Example: try to move 1 tile northeast
         local q, r = selectedQ, selectedR
         local dq, dr = -1, 0
-        if moveUnit(q, r, q + dq, r + dr) then
+        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
 
@@ -44,7 +44,7 @@ function PlayerTurnState:update(dt)
         -- Example: try to move 1 tile northeast
         local q, r = selectedQ, selectedR
         local dq, dr = -2, 0
-        if moveUnit(q, r, q + dq, r + dr) then
+        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
 

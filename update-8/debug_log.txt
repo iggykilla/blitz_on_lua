@@ -1,0 +1,6 @@
+[22:05:56] Hello again!
+[22:05:56] Game started
+[22:05:56] [selectUnit] ✅ Selected: Infantry at (2,0)
+[22:05:56] [selectUnit] ⚠️ Already selected: Infantry at (2,0)
+[22:05:57]    → hex coords: (q=1, r=0)
+[22:05:57] [handleMouseClick] ⚠️ No action at (1,0)

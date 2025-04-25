@@ -62,7 +62,7 @@ function EnemyTurnState:update(dt)
         local validMoves = unit:getValidMoves()
         if #validMoves > 0 then
             local moveTo = validMoves[1]
-            if moveUnit(unit.q, unit.r, moveTo.q, moveTo.r) then
+            if HexBoard:moveUnit(unit.q, unit.r, moveTo.q, moveTo.r) then
                 gStateMachine:change('player-turn', { team = 'blue' })
                 return
             end

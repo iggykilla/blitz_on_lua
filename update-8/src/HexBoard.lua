@@ -1,38 +1,49 @@
+HexBoard = {}
+
 --[[
-    drawHex(x, y, radius)
-    getHexCorner(x, y, i, radius)    
-    hexToPixel(q, r)    
-    generateHexGrid()
-    getTile(q, r)
-    getNeighbors(q, r)
-    isTileEmpty(q, r)
-    placeUnit(tiles, q, r, unitType, team)
-    moveUnit(q1, r1, q2, r2)
+    HexBoard functions moved from globals to module methods:
+    getHexPoints
+    getHexCorner
+    hexToPixel
+    generateHexGrid
+    getTile
+    getNeighbors
+    isTileEmpty
+    placeUnit
+    moveUnit
+    getReachableTiles
+    getAttackableTilesRanged
+    isTileBlocked
+    canMoveThrough
+    canAttackThrough
+    hasLineOfSight
+    getAttackableTilesMelee
+    selectUnitAt
 ]]
 
-function getHexPoints(x, y, radius)
+function HexBoard:getHexPoints(x, y, radius)
     local points = {}
     for i = 0, 5 do
-        local cornerX, cornerY = getHexCorner(x, y, i, radius)
+        local cornerX, cornerY = self:getHexCorner(x, y, i, radius)
         table.insert(points, cornerX)
         table.insert(points, cornerY)
     end
     return points
 end
 
-function getHexCorner(x, y, i, radius)
+function HexBoard:getHexCorner(x, y, i, radius)
     local angle_deg = 60 * i + 0
     local angle_rad = math.rad(angle_deg)
     return x + radius * math.cos(angle_rad), y + radius * math.sin(angle_rad)
 end
 
-function hexToPixel(q, r)
+function HexBoard:hexToPixel(q, r)
     local x = HEX_RADIUS * 1.5 * r
     local y = HEX_RADIUS * SQRT3 * (q + r / 2)
     return x, y
 end
 
-function generateHexGrid(OFFSET_X, OFFSET_Y)
+function HexBoard:generateHexGrid(OFFSET_X, OFFSET_Y)
     local tiles = {}
     local size = 4
 
@@ -41,7 +52,7 @@ function generateHexGrid(OFFSET_X, OFFSET_Y)
         local r2 = math.min(size, -q + size)
 
         for r = r1, r2 do
-            local x, y = hexToPixel(q, r)
+            local x, y = self:hexToPixel(q, r)
             local tile = {
                 q = q,
                 r = r,
@@ -70,7 +81,7 @@ function generateHexGrid(OFFSET_X, OFFSET_Y)
     return tiles
 end
 
-function getTile(q, r)
+function HexBoard:getTile(q, r)
     local key = q .. "," .. r
    -- debug.log(string.format("[getTile] Looking for tile with key: %s", key))
     local tile = tilesByCoordinates[key]
@@ -84,7 +95,7 @@ function getTile(q, r)
     return tile
 end
 
-function getNeighbors(q, r, radius, exact, allowedDirections)
+function HexBoard:getNeighbors(q, r, radius, exact, allowedDirections)
     radius = radius or 1
     local results = {}
 
@@ -113,7 +124,7 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
 
             local neighborQ = q + dq
             local neighborR = r + dr
-            local tile = getTile(neighborQ, neighborR)
+            local tile = self:getTile(neighborQ, neighborR)
             if tile then
                 table.insert(results, tile)
                 --[[if DEBUG_MODE then
@@ -128,13 +139,13 @@ function getNeighbors(q, r, radius, exact, allowedDirections)
     return results
 end
 
-function isTileEmpty(q, r)
-    local tile = getTile(q, r)
+function HexBoard:isTileEmpty(q, r)
+    local tile = self:getTile(q, r)
     return tile and tile.unit == nil
 end
 
-function placeUnit(q, r, unitType, team)
-    local tile = getTile(q, r)
+function HexBoard:placeUnit(q, r, unitType, team)
+    local tile = self:getTile(q, r)
     if not tile then
         debug.log(string.format("❌ No tile at (%d,%d) for placing %s (%s)", q, r, type, team))
         return
@@ -148,9 +159,9 @@ function placeUnit(q, r, unitType, team)
   --  debug.log(string.format("✅ Placed %s (%s) at (%d,%d)", unit:getName(), team, q, r))
 end
 
-function moveUnit(q1, r1, q2, r2)
-    local from = getTile(q1, r1)
-    local to = getTile(q2, r2)
+function HexBoard:moveUnit(q1, r1, q2, r2)
+    local from = self:getTile(q1, r1)
+    local to = self:getTile(q2, r2)
 
     if not from or not from.unit then return false end
     if not to or to.occupied then return false end
@@ -180,8 +191,8 @@ function moveUnit(q1, r1, q2, r2)
     return true
 end
 
-function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
-    local start = getTile(startQ, startR)
+function HexBoard:getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
+    local start = self:getTile(startQ, startR)
     if not start then
     --    debug.log("[getReachableTiles] ❌ Invalid start tile")
         return {}
@@ -204,9 +215,9 @@ function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
             tile.costSoFar = cost
             reachable[key] = tile
 
-            for _, neighbor in ipairs(getNeighbors(tile.q, tile.r)) do
+            for _, neighbor in ipairs(HexBoard:getNeighbors(tile.q, tile.r)) do
                 local moveCost = cost + unit:modifyMoveCost(neighbor)
-                if canMoveThrough(neighbor, unit) then
+                if self:canMoveThrough(neighbor, unit) then
                     if moveCost <= maxCost then
                      --   debug.log(string.format("[getReachableTiles] → ✅ Enqueue (%d,%d) with cost %d", neighbor.q, neighbor.r, moveCost))
                         table.insert(queue, {tile = neighbor, cost = moveCost})
@@ -241,15 +252,8 @@ function getReachableTiles(startQ, startR, maxCost, unit, includeBlocked)
     return result
 end
 
-function clearHighlights()
-    for _, tile in ipairs(tiles) do
-        tile.highlighted = false
-        tile.attackable = false
-    end
-end
-
-function getAttackableTilesRanged(startQ, startR, unit)
-    local start = getTile(startQ, startR)
+function HexBoard:getAttackableTilesRanged(startQ, startR, unit)
+    local start = self:getTile(startQ, startR)
     if not start then 
         return {}
     end
@@ -258,7 +262,7 @@ function getAttackableTilesRanged(startQ, startR, unit)
     local maxCost   = unit:maxAttackCost()
     local maxRange  = unit:maxAttackRange()
 
-    local neighbors = getNeighbors(startQ, startR, maxRange)
+    local neighbors = self:getNeighbors(startQ, startR, maxRange)
 
     for _, neighbor in ipairs(neighbors) do
         local nq, nr = neighbor.q, neighbor.r
@@ -297,7 +301,7 @@ function getAttackableTilesRanged(startQ, startR, unit)
     return result
 end
 
-function isTileBlocked(tile, unit, mode)
+function HexBoard:isTileBlocked(tile, unit, mode)
     -- Shared terrain rule
     if tile.terrain == "mountain" then return true end
 
@@ -313,15 +317,15 @@ function isTileBlocked(tile, unit, mode)
     return false
 end
 
-function canMoveThrough(tile, unit)
-    return not isTileBlocked(tile, unit, "move")
+function HexBoard:canMoveThrough(tile, unit)
+    return not self:isTileBlocked(tile, unit, "move")
 end
 
-function canAttackThrough(unit, tile)
-    return not isTileBlocked(tile, unit, "attack")
+function HexBoard:canAttackThrough(unit, tile)
+    return not self:isTileBlocked(tile, unit, "attack")
 end
 
-function hasLineOfSight(unit, fromTile, toTile)
+function HexBoard:hasLineOfSight(unit, fromTile, toTile)
   --  debug.log("🧠 hasLineOfSight called from " .. fromTile.q .. "," .. fromTile.r .. " to " .. toTile.q .. "," .. toTile.r)
 
     local line = HexMath.getLine(fromTile.q, fromTile.r, toTile.q, toTile.r, false, false)
@@ -337,8 +341,8 @@ function hasLineOfSight(unit, fromTile, toTile)
     return true  -- Clear LoS
 end
 
-function getAttackableTilesMelee(startQ, startR, unit)
-    local reachable = getReachableTiles(startQ, startR, unit:getMaxMoveCost(), unit, true)
+function HexBoard:getAttackableTilesMelee(startQ, startR, unit)
+    local reachable = self:getReachableTiles(startQ, startR, unit:getMaxMoveCost(), unit, true)
     local attackable = {}
     local attackCost = unit:attackCost()
     local maxCost = unit:maxAttackCost()
@@ -369,15 +373,10 @@ function getAttackableTilesMelee(startQ, startR, unit)
     return result
 end
 
-function selectUnitAt(q, r)
-    local tile = getTile(q, r)
-    if tile and tile.unit then
-        Helpers.selectUnit(tile.unit)
-        selectedUnit = tile.unit
-    else
-        -- clear selection
-        selectedUnit = nil
-    end
+function HexBoard:getUnitAt(q, r)
+    local tile = self:getTile(q, r)
+    return tile and tile.unit or nil
 end
 
+return HexBoard
 

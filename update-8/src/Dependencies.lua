@@ -16,7 +16,7 @@ Class = require 'lib/class'
 require 'src/constants'
 
 -- Board - Tiles Logic
-require 'src/HexBoard'
+HexBoard = require 'src/HexBoard'
 HexMath = require 'src.HexMath'
 
 BoardSetup = require 'src/BoardSetup'
@@ -43,7 +43,7 @@ debug.log("Hello again!")
 -- game states smoothly and avoid monolithic code in one file
 require 'src/StateMachine'
 
-require 'src/Helpers'
+Helpers = require 'src/Helpers'
 
 -- each of the individual states our game can be in at once; each state has
 -- its own update and render methods that can be called by our state machine

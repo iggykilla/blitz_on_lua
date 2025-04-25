@@ -13,7 +13,7 @@ function Horse:getName()
 end
 
 function Horse:computeValidMoves()
-    local raw = getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
+    local raw = HexBoard:getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
     return self:filterAccessibleTiles(raw)
 end
 
@@ -22,6 +22,6 @@ function Horse:getMaxMoveCost()
 end
 
 function Horse:computeValidAttacks()
-    local raw = getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
+    local raw = HexBoard:getNeighbors(self.q, self.r, HORSE_JUMP_RADIUS, true)
     return self:filterAttackableTiles(raw)
 end

@@ -12,37 +12,53 @@ end
 
 function Helpers.selectUnit(unit)
     if not unit then
-        debug.log("[selectUnit] ❌ Tried to select a nil unit")
+        -- Deselection path
+        selectedUnit = nil
+        selectedQ, selectedR = nil, nil
+
+        -- Clear all tile markings
+        for _, tile in ipairs(tiles) do
+            tile.selected    = false
+            tile.highlighted = false
+            tile.attackable  = false
+        end
+
+        -- Log and refresh visuals
+        debug.log("[selectUnit] ⚪️ Deselected unit")
+        Visuals.refreshHighlights(nil)
         return
     end
 
-    -- Check if the unit is already selected
+    -- If they clicked the same unit, do nothing
     if selectedUnit == unit then
-        debug.log("[selectUnit] ⚠️ Already selected: " .. unit:getName() .. " at (" .. unit.q .. "," .. unit.r .. ")")
+        debug.log("[selectUnit] ⚠️ Already selected: "
+            .. unit:getName()
+            .. " at (" .. unit.q .. "," .. unit.r .. ")"
+        )
         return
     end
 
+    -- Selection path
     selectedUnit = unit
-    selectedQ = unit.q
-    selectedR = unit.r
+    selectedQ, selectedR = unit.q, unit.r
 
-    -- Deselect all tiles first
+    -- Clear old tile markings
     for _, tile in ipairs(tiles) do
-        tile.selected = false
+        tile.selected    = false
         tile.highlighted = false
-        tile.attackable = false
+        tile.attackable  = false
     end
 
-    -- Mark the selected tile as selected
-    local tile = getTile(selectedQ, selectedR)
-    if tile then
-        tile.selected = true
-    end
+    -- Mark the new tile
+    local tile = HexBoard:getTile(selectedQ, selectedR)
+    if tile then tile.selected = true end
 
-    -- Log the selection for debugging
-    debug.log("[selectUnit] ✅ Selected: " .. unit:getName() .. " at (" .. unit.q .. "," .. unit.r .. ")")
+    debug.log("[selectUnit] ✅ Selected: "
+        .. unit:getName()
+        .. " at (" .. unit.q .. "," .. unit.r .. ")"
+    )
 
-    -- Refresh highlights to make sure visuals update
+    -- Refresh move/attack highlights for the newly selected unit
     Visuals.refreshHighlights(unit)
 end
 
@@ -90,7 +106,7 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
     end
 
     -- 2) Ensure there’s actually a unit to hit
-    local targetTile = getTile(targetQ, targetR)
+    local targetTile = HexBoard:getTile(targetQ, targetR)
     if not targetTile or not targetTile.unit then
         debug.log("[resolveAttack] ❌ No unit at target")
         return false
@@ -111,7 +127,7 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
 
         if attacker:shouldAdvanceAfterAttack(targetQ, targetR) then
             if attacker.canMoveTo and attacker:canMoveTo(targetQ, targetR) then
-                moveUnit(attacker.q, attacker.r, targetQ, targetR)
+                HexBoard:moveUnit(attacker.q, attacker.r, targetQ, targetR)
                 debug.log(string.format(
                     "[resolveAttack] 🚶 %s advanced to (%d,%d)",
                     attacker.type, targetQ, targetR
@@ -135,12 +151,33 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
 end
 
 function Helpers.clearTile(q, r)
-    local tile = getTile(q, r)
+    local tile = HexBoard:getTile(q, r)
     if tile then
         tile.unit = nil
         tile.occupied = false
         debug.log(string.format("[clearTile] Cleared tile at (%d,%d)", q, r))
     end
+end
+
+--- Central click handler: select, move, attack, then advance the turn.
+function Helpers.handleMouseClick(q, r)
+    local u     = selectedUnit
+    local other = HexBoard:getUnitAt(q, r)
+
+    -- 1) No unit currently selected? Try picking one up (or deselect)
+    if not u then
+        return Helpers.selectUnit(other)
+    end
+
+    -- 2) Click on another friendly unit? Switch selection
+    if other and other.team == u.team then
+        return Helpers.selectUnit(other)
+    end
+
+    -- 3) Otherwise it’s invalid
+    debug.log(string.format(
+        "[handleMouseClick] ⚠️ No action at (%d,%d)", q, r
+    ))
 end
 
 return Helpers

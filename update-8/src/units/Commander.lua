@@ -13,7 +13,7 @@ function Commander:getName()
 end
 
 function Commander:computeValidMoves()
-    local reachableTiles = getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self)
+    local reachableTiles = HexBoard:getReachableTiles(self.q, self.r, self:getMaxMoveCost(), self)
     return self:filterAccessibleTiles(reachableTiles)
 end
 
@@ -22,6 +22,6 @@ function Commander:getMaxMoveCost()
 end
 
 function Commander:computeValidAttacks()
-    local reachableWithEnemies = getAttackableTilesMelee(self.q, self.r, self)
+    local reachableWithEnemies = HexBoard:getAttackableTilesMelee(self.q, self.r, self)
     return self:filterAttackableTiles(reachableWithEnemies)
 end

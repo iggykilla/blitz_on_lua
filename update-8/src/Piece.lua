@@ -81,7 +81,7 @@ end
 
 -- Default fallback
 function Piece:computeValidMoves()
-    local raw = getNeighbors(self.q, self.r, 1)
+    local raw = HexBoard:getNeighbors(self.q, self.r, 1)
     return self:filterAccessibleTiles(raw)
 end
 
@@ -142,7 +142,7 @@ end
  
 function Piece:computeValidAttacks()
     -- Get raw tiles to consider (could be special pattern)
-    local raw = getNeighbors(self.q, self.r, self:maxAttackRange())
+    local raw = HexBoard:getNeighbors(self.q, self.r, self:maxAttackRange())
     -- Optional final filter (if needed for terrain, visibility, etc.)
     return self:filterAttackableTiles(raw)
 end
@@ -178,12 +178,12 @@ function Piece:maxAttackCost() return 1 end
 function Piece:maxAttackRange() return 1 end
 
 function Piece:canAttack(q, r)
-    local tile = getTile(q, r)
+    local tile = HexBoard:getTile(q, r)
     if not tile or not self:markAttackableTiles(tile) then
         return false
     end
 
-    return hasLineOfSight(self, getTile(self.q, self.r), tile)
+    return hasLineOfSight(self, HexBoard:getTile(self.q, self.r), tile)
 end
 
 function Piece:shouldAdvanceAfterAttack(targetQ, targetR)

@@ -27,9 +27,17 @@ function Visuals.drawTile(tile, smallFont, mediumFont)
 
     -- Selected outline (drawn after normal border)
     if tile.selected then
-        love.graphics.setColor(1, 1, 0)
-        love.graphics.setLineWidth(4)
+        love.graphics.setColor(1, 1, 0, 0.7)
+        love.graphics.setLineWidth(3)
         love.graphics.polygon("line", hexPoints)
+    end
+
+    -- Hover Visuals
+    if tile.isHovered then     
+        love.graphics.setColor(0.7,0.7,0.7,0.4)
+        love.graphics.setLineWidth(3)
+        love.graphics.polygon("fill", hexPoints)
+        love.graphics.setColor(1,1,1,1)
     end
 
     -- Coordinates (q,r)
@@ -77,6 +85,22 @@ function Visuals.refreshHighlights(unit)
     Visuals.clearHighlights()
     Visuals.highlightTiles(unit, "move")
     Visuals.highlightTiles(unit, "attack")
+end
+
+function Visuals.clearHover()
+    for _, tile in ipairs(tiles) do
+        tile.isHovered = false
+    end
+end
+
+function Visuals.highlightHover(q, r)
+    -- first clear the old hover
+    Visuals.clearHover()
+
+    local tile = HexBoard:getTile(q, r)
+    if tile then
+        tile.isHovered = true
+    end
 end
 
 return Visuals

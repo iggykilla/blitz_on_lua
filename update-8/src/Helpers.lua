@@ -164,20 +164,49 @@ function Helpers.handleMouseClick(q, r)
     local u     = selectedUnit
     local other = HexBoard:getUnitAt(q, r)
 
-    -- 1) No unit currently selected? Try picking one up (or deselect)
+    -- 0) Nothing selected? Pick up or bail
     if not u then
-        return Helpers.selectUnit(other)
+        if other then
+            Helpers.selectUnit(other)
+            return "selected"
+        end
+        return nil
     end
 
-    -- 2) Click on another friendly unit? Switch selection
+    -- 1) Click on an ENEMY unit → attempt attack
+    if other and other.team ~= u.team then
+        for _, tile in ipairs(u:getValidAttacks()) do
+            if tile.q == q and tile.r == r then
+                Helpers.resolveAttack(u, q, r)
+                Helpers.selectUnit(nil)
+                return "attacked"
+            end
+        end
+        -- clicked an out‐of‐range enemy: do _not_ deselect
+        debug.log(string.format(
+          "[handleMouseClick] ⚠️ Enemy at (%d,%d) is out of range", q, r
+        ))
+        return nil
+    end
+
+    -- 2) Click on a FRIENDLY unit → switch selection
     if other and other.team == u.team then
-        return Helpers.selectUnit(other)
+        Helpers.selectUnit(other)
+        return "selected"
     end
 
-    -- 3) Otherwise it’s invalid
-    debug.log(string.format(
-        "[handleMouseClick] ⚠️ No action at (%d,%d)", q, r
-    ))
+    -- 3) Try to move
+    for _, tile in ipairs(u:getValidMoves()) do
+        if tile.q == q and tile.r == r then
+            HexBoard:moveUnit(u.q, u.r, q, r)
+            Helpers.selectUnit(nil)
+            return "moved"
+        end
+    end
+
+    -- 4) Clicked empty or invalid spot → deselect
+    Helpers.selectUnit(nil)
+    return nil
 end
 
 return Helpers

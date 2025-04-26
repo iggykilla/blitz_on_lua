@@ -99,7 +99,7 @@ function HexMath.getLine(q1, r1, q2, r2, includeStart, includeEnd)
     local coords = HexMath.getLineCoords(q1, r1, q2, r2, includeStart, includeEnd)
     local results = {}
     for _, c in ipairs(coords) do
-        local tile = getTile(c.q, c.r)
+        local tile = HexBoard:getTile(c.q, c.r)
         if tile then
          --   debug.log(string.format("[getLine] getTile(%d,%d) → found tile q=%d, r=%d", c.q, c.r, tile.q, tile.r))
             table.insert(results, tile)
@@ -111,15 +111,27 @@ function HexMath.getLine(q1, r1, q2, r2, includeStart, includeEnd)
 end
 
 function HexMath.screenToHex(x, y)
-    local gx, gy = push:toGame(x, y)
+    -- 1) try push:toGame, but fall back to raw if that fails
+    local gx, gy
+    if push and push.toGame then
+        gx, gy = push:toGame(x, y)
+    end
+    if not (gx and gy) then
+        gx, gy = x, y
+    end
+
+    -- 2) shift origin to your hex-grid center
     local dx, dy = gx - OFFSET_X, gy - OFFSET_Y
 
+    -- 3) invert your hex-to-pixel math
     local rf = dx / (HEX_RADIUS * 1.5)
     local qf = (dy / (SQRT3 * HEX_RADIUS)) - (rf * 0.5)
     local sf = -qf - rf
 
-    local roundedCube = HexMath.cubeRound({ qf, sf, rf })
-    return HexMath.cubeToAxial(roundedCube)
+    -- 4) cube-round and back to axial
+    local cube   = HexMath.cubeRound({qf, sf, rf})
+    local q, r   = HexMath.cubeToAxial(cube)
+    return q, r
 end
 
 return HexMath

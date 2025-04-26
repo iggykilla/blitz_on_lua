@@ -32,39 +32,19 @@ function PlayerTurnState:enter(params)
 end
 
 function PlayerTurnState:update(dt)
-    if love.keyboard.wasPressed("m") then
-        -- Example: try to move 1 tile northeast
-        local q, r = selectedQ, selectedR
-        local dq, dr = -1, 0
-        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
+    local mx, my = love.mouse.getX(), love.mouse.getY()
+    local hoverQ, hoverR = HexMath.screenToHex(mx, my)
+
+    if love.mouse.wasPressed(1) then
+        local q, r   = HexMath.screenToHex(love.mouse.getX(), love.mouse.getY())
+        local action = Helpers.handleMouseClick(q, r)
+    
+        if action == "moved" or action == "attacked" then
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
+    end
 
-    elseif love.keyboard.wasPressed("n") then
-        -- Example: try to move 1 tile northeast
-        local q, r = selectedQ, selectedR
-        local dq, dr = -2, 0
-        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
-            gStateMachine:change('enemy-turn', { team = 'red' })
-        end
-
-    elseif love.keyboard.wasPressed("a") then
-        -- Example: melee attack north
-        local q, r = selectedQ, selectedR
-        local dq, dr = -1, 0
-        if Helpers.resolveAttack(selectedUnit, q + dq, r + dr) then
-            gStateMachine:change('enemy-turn', { team = 'red' })
-        end
-
-    elseif love.keyboard.wasPressed("r") then
-        -- Example: ranged attack east
-        local q, r = selectedQ, selectedR
-        local dq, dr = 2, 0
-        if Helpers.resolveAttack(selectedUnit, q + dq, r + dr) then
-            gStateMachine:change('enemy-turn', { team = 'red' })
-        end
-
-    elseif love.keyboard.wasPressed("tab") then
+    if love.keyboard.wasPressed("tab") then
         self.unitIndex = self.unitIndex + 1
         if self.unitIndex > #self.teamUnits then
             self.unitIndex = 1
@@ -90,6 +70,11 @@ function PlayerTurnState:update(dt)
 
     elseif love.keyboard.wasPressed("e") then
         gStateMachine:change('enemy-turn', { team = 'red' })
+    end
+
+    if hoverQ ~= currentHoverQ or hoverR ~= currentHoverR then
+        currentHoverQ, currentHoverR = hoverQ, hoverR
+        Visuals.highlightHover(hoverQ, hoverR)
     end
 end
 

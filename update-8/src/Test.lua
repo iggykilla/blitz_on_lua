@@ -46,7 +46,7 @@ function testLineOfSight(fromTile, toTile)
         end
     end
 
-    if hasLineOfSight(unit, fromTile, toTile) then
+    if HexBoard:hasLineOfSight(unit, fromTile, toTile) then
         toTile.debugColor = {0, 1, 0}
         debug.log("✅ Line of Sight is CLEAR")
     else
@@ -86,43 +86,36 @@ function testGetTile(tile)
     end
 end
 
-function testHandleMouseClick(q, r)
-    -- 1) Nothing selected yet? Try to pick up a unit
-    if not selectedUnit then
-        selectUnitAt(q, r)
-        if selectedUnit then
-            return "selected"
-        else
-            return nil
+--[[
+    if love.keyboard.wasPressed("m") then
+        -- Example: try to move 1 tile northeast
+        local q, r = selectedQ, selectedR
+        local dq, dr = -1, 0
+        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
+            gStateMachine:change('enemy-turn', { team = 'red' })
         end
-    end
 
-    local u = selectedUnit
-    local startQ, startR = u.q, u.r
-
-    -- 2) Can we move there?
-    for _, tile in ipairs(u:getValidMoves()) do
-        if tile.q == q and tile.r == r then
-            HexBoard:moveUnit(startQ, startR, q, r)
-            -- deselect after move:
-            Helpers.selectUnit(nil)
-            return "moved"
+    elseif love.keyboard.wasPressed("n") then
+        -- Example: try to move 1 tile northeast
+        local q, r = selectedQ, selectedR
+        local dq, dr = -2, 0
+        if HexBoard:moveUnit(q, r, q + dq, r + dr) then
+            gStateMachine:change('enemy-turn', { team = 'red' })
         end
-    end
 
-    -- 3) Can we attack there?
-    for _, tile in ipairs(u:getValidAttacks()) do
-        if tile.q == q and tile.r == r then
-            Helpers.resolveAttack(u, q, r)
-            -- deselect after attack:
-            Helpers.selectUnit(nil)
-            return "attacked"
+    elseif love.keyboard.wasPressed("a") then
+        -- Example: melee attack north
+        local q, r = selectedQ, selectedR
+        local dq, dr = -1, 0
+        if Helpers.resolveAttack(selectedUnit, q + dq, r + dr) then
+            gStateMachine:change('enemy-turn', { team = 'red' })
         end
-    end
 
-    -- 4) Nothing valid here
-    debug.log(string.format(
-      "Invalid click at (%d,%d): not a move or attack target", q, r
-    ))
-    return nil
-end
+    elseif love.keyboard.wasPressed("r") then
+        -- Example: ranged attack east
+        local q, r = selectedQ, selectedR
+        local dq, dr = 2, 0
+        if Helpers.resolveAttack(selectedUnit, q + dq, r + dr) then
+            gStateMachine:change('enemy-turn', { team = 'red' })
+        end
+]]

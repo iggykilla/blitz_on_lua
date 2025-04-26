@@ -81,16 +81,6 @@ function love.update(dt)
         love.event.quit()
     end
 
-    if love.mouse.wasPressed(1) then  -- Left-click
-        local q, r = HexMath.screenToHex(
-            love.mouse.getX(), love.mouse.getY()
-        )
-        debug.log(string.format("   → hex coords: (q=%d, r=%d)", q, r))
-    
-        -- centralized click handling
-        Helpers.handleMouseClick(q, r)
-    end
-
     gStateMachine:update(dt)
 
     for _, tile in pairs(tiles) do

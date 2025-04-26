@@ -183,7 +183,7 @@ function Piece:canAttack(q, r)
         return false
     end
 
-    return hasLineOfSight(self, HexBoard:getTile(self.q, self.r), tile)
+    return HexBoard:hasLineOfSight(self, HexBoard:getTile(self.q, self.r), tile)
 end
 
 function Piece:shouldAdvanceAfterAttack(targetQ, targetR)

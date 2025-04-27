@@ -222,18 +222,57 @@ function Helpers.findUnitByType(team, unitType)
     return nil
 end
 
-function Helpers.checkVictory()
-    for _, team in ipairs{"blue","red"} do
-      if not Helpers.findUnitByType(team, "general") then
-        Helpers.winner = (team == "blue" and "red" or "blue")
-        return Helpers.winner
-      end
+function Helpers.checkGameResult(activeTeam)
+    -- find the remaining Generals
+    local blueGen = Helpers.findUnitByType("blue",  "general")
+    local redGen  = Helpers.findUnitByType("red",   "general")
+
+    -- 1) Standard victory if a General is gone
+    if not blueGen then
+        Helpers.winner = "red"
+        return "red"
     end
+    if not redGen then
+        Helpers.winner = "blue"
+        return "blue"
+    end
+
+    -- 2) Insufficient material: both sides only have their General
+    local blueCount, redCount = 0, 0
+    for _, u in ipairs(Helpers.placedUnits) do
+        if     u.team == "blue" then blueCount = blueCount + 1
+        elseif u.team == "red"  then redCount  = redCount  + 1
+        end
+    end
+    if blueCount == 1 and redCount == 1 then
+        Helpers.winner = "tie"
+        return "tie"
+    end
+
+    -- 3) Stalemate for the active team:
+    --    only its General remains *and* it has no moves or attacks
+    local ownUnits = {}
+    for _, u in ipairs(Helpers.placedUnits) do
+        if u.team == activeTeam then
+            table.insert(ownUnits, u)
+        end
+    end
+    if #ownUnits == 1 and ownUnits[1].type == "general" then
+        local gen     = ownUnits[1]
+        local moves   = gen:computeValidMoves()
+        local attacks = gen:computeValidAttacks()
+        if #moves == 0 and #attacks == 0 then
+            Helpers.winner = "tie"
+            return "tie"
+        end
+    end
+
+    -- no result yet
     return nil
 end
-  
-function Helpers.isGameOver()
-    return Helpers.checkVictory() ~= nil
+
+function Helpers.isGameOver(activeTeam)
+    return Helpers.checkGameResult(activeTeam) ~= nil
 end
 
 function Helpers.updateDangerZones(activeTeam)

@@ -105,7 +105,19 @@ end
 
 function Visuals.showVictory(team)
     love.graphics.setFont(largeFont)
-    love.graphics.printf(string.format("Victory, %s player!", team), 0, OFFSET_Y - 23, VIRTUAL_WIDTH, "center")
+    local message
+    if team == "tie" then
+        message = "Draw!"
+    else
+        message = string.format("Victory, %s player!", team)
+    end
+    love.graphics.printf(
+        message,
+        0,
+        OFFSET_Y - 23,
+        VIRTUAL_WIDTH,
+        "center"
+    )
 end
 
 return Visuals

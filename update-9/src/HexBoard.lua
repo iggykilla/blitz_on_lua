@@ -156,6 +156,7 @@ function HexBoard:placeUnit(q, r, unitType, team)
     unit.r = r
     tile.unit = unit
     tile.occupied = true
+    table.insert(Helpers.placedUnits, unit)
   --  debug.log(string.format("✅ Placed %s (%s) at (%d,%d)", unit:getName(), team, q, r))
 end
 
@@ -376,6 +377,48 @@ end
 function HexBoard:getUnitAt(q, r)
     local tile = self:getTile(q, r)
     return tile and tile.unit or nil
+end
+
+--- 
+-- Returns *all* tiles this unit could attack into,
+-- empty or occupied, subject to range/cost/LoS rules.
+function HexBoard:getPotentialAttackTiles(startQ, startR, unit)
+    local start = self:getTile(startQ, startR)
+    if not start then return {} end
+
+    local maxCost  = unit:maxAttackCost()
+    local maxRange = unit:maxAttackRange()
+    local potential = {}
+
+    if maxRange <= 1 then
+        -- Melee: any tile you can reach (including blocked) that you'd swing at
+        local reachable = self:getReachableTiles(startQ, startR, unit:getMaxMoveCost(), unit, true)
+        local cost      = unit:attackCost()
+        if cost <= maxCost then
+            for _, tile in ipairs(reachable) do
+                potential[tile.q .. "," .. tile.r] = tile
+            end
+        end
+    else
+        -- Ranged: any hex within raw range, subject to cost & LoS
+        for _, tile in ipairs(self:getNeighbors(startQ, startR, maxRange)) do
+            local d    = HexMath.hexDistance(startQ, startR, tile.q, tile.r)
+            local cost = unit:attackCost(d)
+            if d <= maxRange
+               and cost <= maxCost
+               and self:hasLineOfSight(unit, start, tile)
+            then
+                potential[tile.q .. "," .. tile.r] = tile
+            end
+        end
+    end
+
+    -- flatten map → list
+    local out = {}
+    for _, tile in pairs(potential) do
+        table.insert(out, tile)
+    end
+    return out
 end
 
 return HexBoard

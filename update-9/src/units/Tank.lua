@@ -1,10 +1,3 @@
-local function getTankRangedDirections()
-    return {
-        {-2, 0}, {-2, 2}, {0, 2},
-        {2, 0}, {2, -2}, {0, -2}
-    }
-end
-
 Tank = Class{__includes = Piece}
 
 function Tank:init(team, q, r)
@@ -19,12 +12,19 @@ function Tank:getName()
     return "Tank"
 end
 
+function Tank:rangeDirections()
+    return {
+        {-2, 0}, {-2, 2}, {0, 2},
+        {2, 0}, {2, -2}, {0, -2},
+    }
+end
+
 function Tank:specialMoves()
     -- Get neighbors within the short radius
     local short = HexBoard:getNeighbors(self.q, self.r, TANK_SHORT_RADIUS)
 
     -- Define custom movement directions for long radius
-    local directions = getTankRangedDirections()
+    local directions = self:rangeDirections()
 
     -- Get neighbors within the long radius with specific directions
     local long = HexBoard:getNeighbors(self.q, self.r, TANK_LONG_RADIUS, true, directions)
@@ -39,6 +39,14 @@ function Tank:specialMoves()
     end
 
     return result
+end
+
+function Tank:moveDirections()
+    local dirs = {}
+    for _, t in ipairs(self:specialMoves()) do
+        table.insert(dirs, { t.q - self.q, t.r - self.r })
+    end
+    return dirs
 end
 
 function Tank:computeValidMoves()

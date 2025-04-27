@@ -73,6 +73,7 @@ function BoardSetup.test_positions(team)
 
     elseif color == "red" then
         for _, group in ipairs({
+            spawn("tank",     {{1,3}},  color),
             spawn("general",  {{2,0}}, color)
         }) do
             for _, u in ipairs(group) do

@@ -8,12 +8,14 @@ function EnemyTurnState:enter(params)
     self.teamUnits = {}
 
     -- Filter and collect only the enemy team's units
-    for _, unit in ipairs(placedUnits) do
+    for _, unit in ipairs(Helpers.placedUnits) do
         if unit.team == self.team then
             table.insert(self.teamUnits, unit)
         end
     end
 
+    Helpers.updateDangerZones(self.team)
+    
     self.timer = 0
     self.actionDelay = 0.5
 

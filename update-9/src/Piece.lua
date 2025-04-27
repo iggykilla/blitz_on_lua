@@ -16,6 +16,7 @@ function Piece:init(unitType, team, q, r)
     self.label = self:getLabel()        -- I, T, G, C
     self.q = q or nil
     self.r = r or nil
+    self.flagRadius = false
     self.hp = 1                         -- Blitz rule: all units have 1 HP
 end
 
@@ -52,6 +53,10 @@ end
 
 function Piece:getMaxMoveCost()
     return 1 -- default move range (e.g., for Infantry)
+end
+
+function Piece:moveDirections()
+    return nil
 end
 
 function Piece:getValidMoves()

@@ -8,11 +8,13 @@ function PlayerTurnState:enter(params)
     self.teamUnits = {}
 
     -- Cache all units belonging to this team
-    for _, unit in ipairs(placedUnits) do
+    for _, unit in ipairs(Helpers.placedUnits) do
         if unit.team == self.team then
             table.insert(self.teamUnits, unit)
         end
     end
+
+    Helpers.updateDangerZones(self.team)
 
     -- Try selecting the default unit at (2,0)
     local centerTile = HexBoard:getTile(2, 0)

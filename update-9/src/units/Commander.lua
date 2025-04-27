@@ -25,3 +25,10 @@ function Commander:computeValidAttacks()
     local reachableWithEnemies = HexBoard:getAttackableTilesMelee(self.q, self.r, self)
     return self:filterAttackableTiles(reachableWithEnemies)
 end
+
+function Commander:maxAttackCost() return 3 end
+function Commander:maxAttackRange() return 3 end
+
+function Commander:attackCost(distance)
+    return distance or 1 -- 1 for melee, 2 for ranged, or customize
+end

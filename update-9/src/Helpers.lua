@@ -1,5 +1,9 @@
 Helpers = {}
 
+Helpers.dangerZones = {}
+Helpers.placedUnits = {}
+Helpers.winner = nil
+
 function Helpers.collectPlacedUnits()
     local list = {}
     for _, tile in ipairs(tiles) do
@@ -69,18 +73,13 @@ function Helpers.rawSelect(unit)
 end
 
 function Helpers.removeUnit(unit)
-    -- record the unit
-    table.insert(removedUnits, unit)
-
-    -- remove from placedUnits
-    for i, u in ipairs(placedUnits) do
-        if u == unit then
-            table.remove(placedUnits, i)
-            break
-        end
+    table.insert(removedUnits, unit)        
+    for i,u in ipairs(Helpers.placedUnits) do
+      if u == unit then
+        table.remove(Helpers.placedUnits, i)
+        break
+      end
     end
-
-    -- clear unit from tile
     Helpers.clearTile(unit.q, unit.r)
 end
 
@@ -215,9 +214,9 @@ function Helpers.handleMouseClick(q, r)
 end
 
 function Helpers.findUnitByType(team, unitType)
-    for _, u in ipairs(placedUnits) do
-      if u.team == team and u.unitType == unitType then
-        return u
+    for _, u in ipairs(Helpers.placedUnits) do
+        if u.team == team and u.type == unitType then
+            return u
       end
     end
     return nil
@@ -235,6 +234,63 @@ end
   
 function Helpers.isGameOver()
     return Helpers.checkVictory() ~= nil
+end
+
+function Helpers.updateDangerZones(activeTeam)
+    -- Reset danger zones map
+    Helpers.dangerZones = {}
+
+    -- Log entry info
+    debug.log("=== updateDangerZones, activeTeam = " .. tostring(activeTeam))
+    debug.log("placedUnits count = " .. tostring(#Helpers.placedUnits))
+
+    -- Iterate over all placed units
+    for i, u in ipairs(Helpers.placedUnits) do
+        debug.log(string.format("unit #%d: type=%s team=%s", i, u.type or "?", u.team))
+
+        -- Only consider enemy units
+        if u.team ~= activeTeam then
+            local maxRange = u:maxAttackRange()
+            local rawRange
+
+            -- Choose raw range source based on unit type
+            if maxRange > 1 then
+                -- Ranged units: all hexes within maxRange
+                rawRange = HexBoard:getNeighbors(u.q, u.r, maxRange, u.flagRadius, u:moveDirections())
+                debug.log("  rawRange (ranged) count = " .. tostring(#rawRange))
+            else
+                -- Melee units: all reachable tiles, including blocked
+                rawRange = HexBoard:getReachableTiles(u.q, u.r, u:getMaxMoveCost(), u, true)
+                debug.log("  rawRange (melee) count = " .. tostring(#rawRange))
+            end
+
+            local maxCost = u:maxAttackCost()
+
+            for j, tile in ipairs(rawRange) do
+                local dist = HexMath.hexDistance(u.q, u.r, tile.q, tile.r)
+                local cost = u:attackCost(dist)
+                -- Check only range and cost
+                if dist <= maxRange and cost <= maxCost then
+                    local key = tile.q .. "," .. tile.r
+                    Helpers.dangerZones[key] = true
+                    debug.log(string.format("  -> zone #%d: q=%d r=%d key=%q", j, tile.q, tile.r, key))
+                else
+                    debug.log(string.format("  -- skip #%d: q=%d r=%d dist=%d cost=%d", 
+                        j, tile.q, tile.r, dist, cost))
+                end
+            end
+        end
+    end
+
+    -- Log resulting danger zone coordinates
+    debug.log("dangerZones keys:")
+    for coord in pairs(Helpers.dangerZones) do
+        debug.log("  " .. coord)
+    end
+end
+
+function Helpers.isTileDangerous(q, r)
+    return Helpers.dangerZones[q .. "," .. r] == true
 end
 
 return Helpers

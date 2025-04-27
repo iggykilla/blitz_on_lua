@@ -12,7 +12,17 @@ function General:getName()
     return "General"
 end
 
-function General:canAttack(q, r)
-    -- Placeholder for Update 5
-    return false
+function General:computeValidMoves()
+    -- a) run the base move logic
+    local raw = Piece.computeValidMoves(self)
+
+    -- b) drop any tile in danger
+    local safe = {}
+    for _, tile in ipairs(raw) do
+        if not Helpers.isTileDangerous(tile.q, tile.r) then
+            table.insert(safe, tile)
+        end
+    end
+
+    return safe
 end

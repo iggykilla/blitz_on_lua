@@ -27,12 +27,12 @@ function love.load()
     
     -- Setup Logic
     BoardSetup.setup()
-    placedUnits = Helpers.collectPlacedUnits()
+    Helpers.placedUnits = Helpers.collectPlacedUnits()
   --  debug.log("📦 Collected " .. #placedUnits .. " placed units")
 
-    for i, unit in ipairs(placedUnits) do
+--    for i, unit in ipairs(Helpers.placedUnits) do
      --   debug.log(string.format("  [%d] %s (%s) at %d,%d", i, unit:getName(), unit.team, unit.q, unit.r))
-    end
+--    end
 
     -- Get all placed units
     removedUnits = {}

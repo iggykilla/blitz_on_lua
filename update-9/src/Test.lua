@@ -119,3 +119,34 @@ end
             gStateMachine:change('enemy-turn', { team = 'red' })
         end
 ]]
+
+--[[
+function Tank:specialMoves()
+    -- Get neighbors within the short radius
+    local short = HexBoard:getNeighbors(self.q, self.r, TANK_SHORT_RADIUS)
+
+    -- Define custom movement directions for long radius
+    local directions = getTankRangedDirections()
+
+    -- Get neighbors within the long radius with specific directions
+    local long = HexBoard:getNeighbors(self.q, self.r, TANK_LONG_RADIUS, true, directions)
+
+    -- Combine into a new result table
+    local result = {}
+    for _, tile in ipairs(short) do
+        table.insert(result, tile)
+    end
+    for _, tile in ipairs(long) do
+        table.insert(result, tile)
+    end
+
+    return result
+end
+
+function Tank:moveDirections()
+    local dirs = {}
+    for _, t in ipairs(self:specialMoves()) do
+        table.insert(dirs, { t.q - self.q, t.r - self.r })
+    end
+    return dirs
+end]]

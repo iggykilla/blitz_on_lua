@@ -27,7 +27,6 @@ function love.load()
     
     -- Setup Logic
     BoardSetup.setup()
-    Helpers.placedUnits = Helpers.collectPlacedUnits()
   --  debug.log("📦 Collected " .. #placedUnits .. " placed units")
 
 --    for i, unit in ipairs(Helpers.placedUnits) do

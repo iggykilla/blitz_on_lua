@@ -144,6 +144,7 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
                 ))
             end
         end
+
     else
         debug.log(string.format(
             "[resolveAttack] ⚔️ %s survived with %d HP",
@@ -151,6 +152,12 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
         ))
     end
 
+    -- after removal/advance…
+    for _, u in ipairs(Helpers.placedUnits) do
+        u:invalidateMoves()
+        u:invalidateAttacks()
+    end
+    
     debug.log(string.format("[resolveAttack] ⏹ EXIT target=(%d,%d)", targetQ, targetR))
     return true
 end

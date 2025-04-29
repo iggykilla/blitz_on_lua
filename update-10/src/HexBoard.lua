@@ -178,8 +178,6 @@ function HexBoard:moveUnit(q1, r1, q2, r2)
     -- Move unit
     to.unit = from.unit
     to.unit:setPosition(q2, r2)
-    to.unit:invalidateMoves() -- 🧼 Clear cached moves
-    to.unit:invalidateAttacks()
     to.occupied = true
     to.flashTimer = 0.8
 
@@ -194,6 +192,12 @@ function HexBoard:moveUnit(q1, r1, q2, r2)
      if u.type == "infantry" and Helpers.isInPromotionZone(u) then
          Helpers.requestPromotion(u, {"tank","horse","commander"})
      end
+
+    -- At the very end of moveUnit:
+    for _, u in ipairs(Helpers.placedUnits) do
+        u:invalidateMoves()
+        u:invalidateAttacks()
+    end
 
     return true
 end

@@ -10,6 +10,12 @@ Helpers.evadeUsed = {
     red  = false
 }
 
+Helpers.emergencyUsed = {
+    blue = false,
+    red = false
+}
+
+
 function Helpers.collectPlacedUnits()
     local list = {}
     for _, tile in ipairs(tiles) do
@@ -218,6 +224,14 @@ function Helpers.handleMouseClick(q, r)
                 return nil
             end
         end
+
+    if u.type == "general" and other.type == "commander" then
+        if Helpers.tryEmergencySwap(u) then
+            Helpers.selectUnit(nil)
+            return "swapped"
+        end
+        return nil
+    end
 
         -- Otherwise switch selection
         Helpers.selectUnit(other)
@@ -461,6 +475,57 @@ function Helpers.tryTacticalEvade(general)
     end
 
     debug.log("[Evade] ❌ No safe tank reachable")
+    return false
+end
+
+function Helpers.tryEmergencySwap(general)
+    if Helpers.emergencyUsed[general.team] then
+        debug.log("[EmergencySwap] ❌ Already used for " .. general.team)
+        return false
+    end
+
+    -- Find the friendly Commander
+    for _, unit in ipairs(Helpers.placedUnits) do
+        if unit.team == general.team and unit.type == "commander" then
+
+            -- Can Commander reach the General?
+            if HexBoard:canReachFriendlyGeneral(unit.q, unit.r, unit) then
+                -- Swap them
+                local gq, gr = general.q, general.r
+                local cq, cr = unit.q, unit.r
+
+                general:setPosition(cq, cr)
+                unit:setPosition(gq, gr)
+
+                local gTile = HexBoard:getTile(cq, cr)
+                local cTile = HexBoard:getTile(gq, gr)
+
+                gTile.unit = general
+                cTile.unit = unit
+                gTile.occupied = true
+                cTile.occupied = true
+
+                Helpers.emergencyUsed[general.team] = true
+
+                -- Invalidate moves after swap
+                for _, u in ipairs(Helpers.placedUnits) do
+                    u:invalidateMoves()
+                    u:invalidateAttacks()
+                end
+
+                debug.log("[EmergencySwap] ✅ General and Commander swapped for " .. general.team)
+
+                -- End turn immediately
+                gStateMachine:change('enemy-turn', {
+                    team = (general.team == "blue") and "red" or "blue"
+                })
+
+                return true
+            end
+        end
+    end
+
+    debug.log("[EmergencySwap] ❌ No valid Commander found or path blocked")
     return false
 end
 

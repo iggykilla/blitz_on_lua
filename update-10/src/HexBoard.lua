@@ -445,5 +445,22 @@ function HexBoard.isPathClear(fromQ, fromR, toQ, toR)
     return true
 end
 
+function HexBoard:canReachFriendlyGeneral(startQ, startR, unit)
+    local start = self:getTile(startQ, startR)
+    if not start then return false end
+
+    local maxMove = unit:getMaxMoveCost()
+    local reachable = self:getReachableTiles(startQ, startR, maxMove, unit, true)
+
+    for _, tile in ipairs(reachable) do
+        if tile.unit and tile.unit.team == unit.team and tile.unit.type == "general" then
+            debug.log(string.format("[canReachFriendlyGeneral] ✅ %s can reach General at (%d,%d)", unit.type, tile.q, tile.r))
+            return true
+        end
+    end
+
+    return false
+end
+
 return HexBoard
 

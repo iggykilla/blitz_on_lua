@@ -432,5 +432,18 @@ function HexBoard:getPotentialAttackTiles(startQ, startR, unit)
     return out
 end
 
+function HexBoard.isPathClear(fromQ, fromR, toQ, toR)
+    local path = HexMath.getLine(fromQ, fromR, toQ, toR, false, false)
+    for _, tile in ipairs(path) do
+        if tile.unit then
+            return false -- any unit blocking: no swap
+        end
+        if tile.terrain == "mountain" then
+            return false -- mountain blocking: no swap
+        end
+    end
+    return true
+end
+
 return HexBoard
 

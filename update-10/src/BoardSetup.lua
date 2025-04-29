@@ -63,7 +63,8 @@ function BoardSetup.test_positions(team)
 
     if color == "blue" then
         for _, group in ipairs({
-            spawn("infantry",{{-3,0}}, color),
+            spawn("tank",{{0,2}}, color),
+            spawn("infantry", {{1,1}}, color),
             spawn("general",  {{2,0}}, color)
         }) do
             for _, u in ipairs(group) do
@@ -73,8 +74,8 @@ function BoardSetup.test_positions(team)
 
     elseif color == "red" then
         for _, group in ipairs({
-            spawn("tank",     {{2,1}},  color),
-            spawn("general",  {{4,0}}, color)
+            --spawn("tank",     {{2,1}},  color),
+            spawn("general",  {{-4,0}}, color)
         }) do
             for _, u in ipairs(group) do
                 table.insert(positions, u)

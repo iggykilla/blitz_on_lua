@@ -41,7 +41,7 @@ function PlayerTurnState:update(dt)
         local q, r   = HexMath.screenToHex(mx, my)
         local action = Helpers.handleMouseClick(q, r)
 
-        if action == "attacked" then
+        if action == "attacked" or action == "evaded" then
             gStateMachine:change('enemy-turn', { team = 'red' })
         elseif action == "moved" and Helpers.requestPromotion then
             if not Helpers.promotionRequest then

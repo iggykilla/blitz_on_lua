@@ -5,6 +5,11 @@ Helpers.placedUnits = {}
 Helpers.winner = nil
 Helpers.promotionRequest = nil
 
+Helpers.evadeUsed = {
+    blue = false,
+    red  = false
+}
+
 function Helpers.collectPlacedUnits()
     local list = {}
     for _, tile in ipairs(tiles) do
@@ -157,7 +162,7 @@ function Helpers.resolveAttack(attacker, targetQ, targetR)
         u:invalidateMoves()
         u:invalidateAttacks()
     end
-    
+
     debug.log(string.format("[resolveAttack] ⏹ EXIT target=(%d,%d)", targetQ, targetR))
     return true
 end
@@ -201,8 +206,20 @@ function Helpers.handleMouseClick(q, r)
         return nil
     end
 
-    -- 2) Click on a FRIENDLY unit → switch selection
+    -- 2) Click on a FRIENDLY unit
     if other and other.team == u.team then
+        -- ⮕ Tactical Evade check
+        if u.type == "general" and other.type == "tank" then
+            if Helpers.tryTacticalEvade(u) then
+                Helpers.selectUnit(nil)
+                return "evaded"
+            else
+                debug.log("[handleMouseClick] ⚠️ Tactical Evade attempt failed")
+                return nil
+            end
+        end
+
+        -- Otherwise switch selection
         Helpers.selectUnit(other)
         return "selected"
     end
@@ -288,12 +305,12 @@ function Helpers.updateDangerZones(activeTeam)
     Helpers.dangerZones = {}
 
     -- Log entry info
-    debug.log("=== updateDangerZones, activeTeam = " .. tostring(activeTeam))
-    debug.log("placedUnits count = " .. tostring(#Helpers.placedUnits))
+  --  debug.log("=== updateDangerZones, activeTeam = " .. tostring(activeTeam))
+  --  debug.log("placedUnits count = " .. tostring(#Helpers.placedUnits))
 
     -- Iterate over all placed units
     for i, u in ipairs(Helpers.placedUnits) do
-        debug.log(string.format("unit #%d: type=%s team=%s", i, u.type or "?", u.team))
+     --   debug.log(string.format("unit #%d: type=%s team=%s", i, u.type or "?", u.team))
 
         -- Only consider enemy units
         if u.team ~= activeTeam then
@@ -304,11 +321,11 @@ function Helpers.updateDangerZones(activeTeam)
             if maxRange > 1 then
                 -- Ranged units: all hexes within maxRange
                 rawRange = HexBoard:getNeighbors(u.q, u.r, maxRange, u.flagRadius, u:moveDirections())
-                debug.log("  rawRange (ranged) count = " .. tostring(#rawRange))
+             --   debug.log("  rawRange (ranged) count = " .. tostring(#rawRange))
             else
                 -- Melee units: all reachable tiles, including blocked
                 rawRange = HexBoard:getReachableTiles(u.q, u.r, u:getMaxMoveCost(), u, true)
-                debug.log("  rawRange (melee) count = " .. tostring(#rawRange))
+             --   debug.log("  rawRange (melee) count = " .. tostring(#rawRange))
             end
 
             local maxCost = u:maxAttackCost()
@@ -320,20 +337,20 @@ function Helpers.updateDangerZones(activeTeam)
                 if dist <= maxRange and cost <= maxCost then
                     local key = tile.q .. "," .. tile.r
                     Helpers.dangerZones[key] = true
-                    debug.log(string.format("  -> zone #%d: q=%d r=%d key=%q", j, tile.q, tile.r, key))
+                --[[    debug.log(string.format("  -> zone #%d: q=%d r=%d key=%q", j, tile.q, tile.r, key))
                 else
                     debug.log(string.format("  -- skip #%d: q=%d r=%d dist=%d cost=%d", 
-                        j, tile.q, tile.r, dist, cost))
+                        j, tile.q, tile.r, dist, cost))]]
                 end
             end
         end
     end
 
-    -- Log resulting danger zone coordinates
+   --[[ Log resulting danger zone coordinates
     debug.log("dangerZones keys:")
     for coord in pairs(Helpers.dangerZones) do
         debug.log("  " .. coord)
-    end
+    end]]
 end
 
 function Helpers.isTileDangerous(q, r)
@@ -366,10 +383,10 @@ function Helpers.promoteUnit(unit, newType)
     local team, q, r = unit.team, unit.q, unit.r
     Helpers.removeUnit(unit)
     HexBoard:placeUnit(q, r, newType, team)
-    debug.log(string.format(
+   --[[ debug.log(string.format(
     "[Promote] Infantry at (%d,%d) became %s",
     q, r, newType
-    ))
+    ))]]
 end
   
 -- 4) Quick check for promotion‐tile membership
@@ -378,5 +395,73 @@ function Helpers.isInPromotionZone(unit)
     local z = promotionZone[unit.team]
     return unit.q == z.q and unit.r == z.r
 end 
+
+function Helpers.tryTacticalEvade(general)
+    if Helpers.evadeUsed[general.team] then
+        debug.log("[Evade] ❌ Already used for " .. general.team)
+        return false
+    end
+
+    -- Find candidate Tanks
+    local tanks = {}
+    for _, u in ipairs(Helpers.placedUnits) do
+        if u.team == general.team and u.type == "tank" then
+            table.insert(tanks, u)
+        end
+    end
+
+    for _, tank in ipairs(tanks) do
+        -- 1) Check if Tank can move to General's tile
+        local reachable = HexBoard:getReachableTiles(tank.q, tank.r, tank:getMaxMoveCost(), tank, true)
+        debug.log("[TacticalEvade] Tank valid moves:")
+        for _, move in ipairs(reachable) do
+            debug.log(string.format("  - (%d,%d)", move.q, move.r))
+        end
+        local canReach = false
+        for _, tile in ipairs(reachable) do
+            if tile.q == general.q and tile.r == general.r then
+                canReach = true
+                break
+            end
+        end
+
+        -- 2) Check if Tank’s position is SAFE
+        if canReach
+        and HexBoard.isPathClear(tank.q, tank.r, general.q, general.r)
+        and not Helpers.isTileDangerous(tank.q, tank.r) then
+
+            -- 3) Swap General and Tank
+            local gq, gr = general.q, general.r
+            local tq, tr = tank.q, tank.r
+
+            general:setPosition(tq, tr)
+            tank:setPosition(gq, gr)
+
+            local gTile = HexBoard:getTile(tq, tr)
+            local tTile = HexBoard:getTile(gq, gr)
+
+            gTile.unit = general
+            tTile.unit = tank
+            gTile.occupied = true
+            tTile.occupied = true
+
+            -- Mark evade used
+            Helpers.evadeUsed[general.team] = true
+
+            debug.log("[Evade] ✅ " .. general.team .. " swapped General and Tank")
+
+            -- Invalidate after swapping
+            for _, u in ipairs(Helpers.placedUnits) do
+                u:invalidateMoves()
+                u:invalidateAttacks()
+            end
+
+            return true
+        end
+    end
+
+    debug.log("[Evade] ❌ No safe tank reachable")
+    return false
+end
 
 return Helpers
